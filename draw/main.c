@@ -15,24 +15,49 @@ void		get_terminal_size(int *w, int *h)
 	*w = ws.ws_col;
 	*h = ws.ws_row;
 }
-//1) нарисовать
-//2) найти длину/ширину изображения
-//3) использовать длину и ширину терминала
+
+void		find_centre(int w, int h)
+{
+	while (h / 2 - 5 > 0)
+	{
+		write (1, "\n", 1);
+		h--;
+	}
+}
+
+void		get_next_start(int w, int h)
+{
+	while (h / 2 - 9 > 0)
+	{
+		write (1, "\n", 1);
+		h--;
+	}
+}
 
 int		main(int ac, char **av)
 {
 	int				term_w;
 	int				term_h;
+	int				i;
 
-	if (ac < 2)
+	if (ac < 1)
 		return (0);
-	if (!(av[1][0]))
-		return (0);
-	g_count = av[1][0] - 'a';
-	if (g_count > MAX_FRAME)
-		return (0);
-	get_terminal_size(&term_w, &term_h);
-	draw_trace(term_w, term_h);
-	g_count++;
-	printf("%d", g_count);
+	g_count = 0;
+	while (g_count <= MAX_FRAME)
+	{
+		i = 0;
+		get_terminal_size(&term_w, &term_h);
+		find_centre(term_w, term_h);
+		draw_trace(term_w, term_h);
+		get_next_start(term_w, term_h);
+		while (i < 20000000)
+			i++;
+		i = 0;
+		find_centre(term_w, term_h);
+		draw_trace(term_w, term_h);
+		get_next_start(term_w, term_h);
+		while (i < 20000000)
+			i++;
+		g_count++;
+	}
 }

@@ -24,19 +24,34 @@ void	draw_rainbow(int w, int h, int space)
 	write(1, "\n", 1);
 }
 
+void	write_spaces(int spaces)
+{
+	while (spaces > 0)
+	{
+		write (1, " ", 1);
+		spaces--;
+	}
+}
+
 void	write_rest_triangle(int w, int h, int flag)
 {
 	if (flag)
 	{
+		write_spaces(w / 2 - 20);
 		write(1, "      \\/      \\"YELLOW"/"GREEN"/"BLUE"/"PURPLE"/"EOC"\n",
 				strlen(YELLOW GREEN BLUE PURPLE EOC) + 20);
+		write_spaces(w / 2 - 20);
 		write(1, "      / DOING  \\"BLUE"/"PURPLE"/"EOC"\n", strlen(BLUE PURPLE EOC) + 19);
+		write_spaces(w / 2 - 20);
 		write(1, "     /__________\\\n", 18);
 	}
 	else
 	{
+		write_spaces(w / 2 - 20);
 		write(1, "       /      \\\n", 16);
+		write_spaces(w / 2 - 20);
 		write(1, "      / DOING  \\\n", 17);
+		write_spaces(w / 2 - 20);
 		write(1, "     /__________\\\n", 18);
 	}
 }
@@ -46,11 +61,6 @@ void	draw_triangle(int w, int h, int space, int flag)
 	int		right_space;
 
 	right_space = space;
-//	if (space < 3)
-//	{
-//		write(1, "\n", 1);
-//		return ;
-//	}
 	while (space < 5)
 	{
 		write (1, "  ", 2);
@@ -74,12 +84,19 @@ void	draw_trace(int w, int h)
 	int		leight;
 	int		arr;
 	int		flag;
+	int		spaces;
 
 	arr = 0;
 	while (arr < TRACE_SIZE)
 	{
+		spaces = w / 2 - 20;
 		flag = 0;
 		leight = 0;
+		while (spaces > 0)
+		{
+			write (1, " ", 1);
+			spaces--;
+		}
 		while (leight < arr)
 		{
 			leight++;

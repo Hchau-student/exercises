@@ -10,7 +10,7 @@
 int				g_count;
 
 #define TRACE_SIZE		6
-#define MAX_FRAME		18
+#define MAX_FRAME		12
 #define RED				"\033[38;5;196;1m"
 #define ORANGE			"\033[38;5;208;1m"
 #define YELLOW			"\033[38;5;226;1m"
