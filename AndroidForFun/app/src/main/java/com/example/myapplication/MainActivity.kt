@@ -19,10 +19,13 @@ import android.view.View
 **      to get first picture
 */
 import android.graphics.*
+import android.os.Build
+import androidx.annotation.RequiresApi
 
 class MainActivity : Activity() {
 
     //in main activity button should be visible only if screen was touched
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
 
         // getting size of window for correct calculations
@@ -41,15 +44,18 @@ class MainActivity : Activity() {
         var buttonWatchClip: Button = findViewById(R.id.buttonWatchClip)
         var krown: View = findViewById(R.id.krown)
         var boss: View = findViewById(R.id.boss)
+        var drama: View = findViewById(R.id.drama)
 
         background.setBackgroundResource(R.drawable.main_view_background)
 
-        buttonPlay.setBackgroundResource(R.drawable.main_button_play_v3)
+        buttonPlay.setBackgroundResource(R.drawable.main_button_play_v4)
         buttonWatchClip.setBackgroundResource(R.drawable.main_button_watch_clip)
 
         krown.setBackgroundResource(R.drawable.main_view_krown)
         boss.setBackgroundResource(R.drawable.main_view_boss)
+        drama.setBackgroundResource(R.drawable.main_view_drama)
 
+        getWindow().setNavigationBarColor(getResources().getColor(R.color.colorNavigationBarMainScreen))
     }
 
     fun tapPlay(v: View?) {

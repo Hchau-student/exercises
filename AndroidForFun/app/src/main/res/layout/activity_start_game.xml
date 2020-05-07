@@ -21,6 +21,7 @@
 
     <Button
         android:id="@+id/buttonContinue"
+        android:onClick="tapContinue"
         android:layout_width="190dp"
         android:layout_height="90dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -30,6 +31,7 @@
 
     <Button
         android:id="@+id/buttonNewGame"
+        android:onClick="tapNewGame"
         android:layout_width="190dp"
         android:layout_height="90dp"
         app:layout_constraintBottom_toBottomOf="parent"

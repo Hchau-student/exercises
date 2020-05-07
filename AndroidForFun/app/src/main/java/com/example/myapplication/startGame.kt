@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -35,5 +36,14 @@ class startGame : AppCompatActivity() {
             background.setBackgroundResource(R.drawable.start_game_view_background)
             currBackground = "Menu"
         }
+    }
+
+    fun tapNewGame(v: View?) {
+        var intent: Intent = Intent(this, b_Raycast::class.java)
+        startActivity(intent)
+    }
+
+    fun tapContinue(v: View?) {
+
     }
 }
