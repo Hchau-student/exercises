@@ -31,9 +31,29 @@ public class y_Player {
         }
 
     }
-    fun go() { //за пределами функции обозначить координату и идти к ней
-        Pos.x += Dir.x * moveSpeed
-        Pos.y += Dir.y * moveSpeed
+//    fun go() { //за пределами функции обозначить координату и идти к ней
+////        if ()
+//        Pos.x += Dir.x * moveSpeed
+//        Pos.y += Dir.y * moveSpeed
+//    }
+    fun go(map: z_Map) {
+//    int(posX + dirX * moveSpeed)][int(posY)
+    var nextStep: Double = Pos.x + Dir.x * (moveSpeed * 2)
+        val newPosx: Double = Pos.x + Dir.x * moveSpeed
+        if ((nextStep.toInt() < map.With) and (nextStep.toInt() >= 0)) {
+            if ((map.worldMap[nextStep.toInt() + (Pos.y.toInt() * map.With).toInt()] == 0))// and
+//               if (map.worldMap[Pos.x.toInt() + (Pos.y * map.With).toInt()] == 0)
+               Pos.x = newPosx
+        }
+    nextStep = Pos.y + Dir.y * (moveSpeed * 2)
+        val newPosy: Double = Pos.y + Dir.y * moveSpeed
+        if ((nextStep.toInt() < map.Height) and (nextStep.toInt() >= 0)) {
+                if ((map.worldMap[Pos.x.toInt() + (nextStep.toInt()* map.With).toInt()] == 0))//\\\ and
+//                    if (map.worldMap[(Pos.x + Pos.y * map.With).toInt()] == 0)
+            {
+                    Pos.y = newPosy
+            }
+        }
     }
     fun rotate(touch: Float) { //поворот - как? Куда?
         val oldDirX: Double = Dir.x

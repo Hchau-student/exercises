@@ -34,8 +34,9 @@ class MainActivity : AppCompatActivity() {
         override fun onTouchEvent(event: MotionEvent): Boolean {
             var endColor = EndTapEvent(event, raycast.TouchScreen)
             if (endColor != 0.0f) {
-                raycast.player.moveSpeed = endColor.toDouble()
-                raycast.player.go()
+//                raycast.player.moveSpeed = endColor.toDouble()
+//                raycast.player.go()
+                raycast.player.go(raycast.map)
             } else {
                 endColor = TapEvent(event, raycast.TouchScreen).toFloat()
                 if (endColor != 0.0f)

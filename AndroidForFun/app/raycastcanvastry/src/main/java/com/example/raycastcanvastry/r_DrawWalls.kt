@@ -113,7 +113,11 @@ fun r_DrawWalls(size: Point, bitmap: Bitmap, raycast: r_Raycast): Bitmap {
 
 
         //draw the pixels of the stripe as a vertical line
-        var textYY: Int = 0
+        var textYY: Int = 0 //find begin
+        if (lineHeight > size.y)
+            textYY = (lineHeight - size.y) / 2
+//        while ((lineHeight - ((textYY * size.x) / (lineHeight) * 1.97).toInt() * size.x) > size.y)
+//            textYY++
         for (j in 0..size.y - 1) {
             if (j < drawStart || j > drawEnd)
                 srcPixels[i + j * size.x] = 0xff000000.toInt()
