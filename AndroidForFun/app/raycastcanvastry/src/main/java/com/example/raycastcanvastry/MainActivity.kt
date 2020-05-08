@@ -24,21 +24,25 @@ class MainActivity : AppCompatActivity() {
 
     internal inner class DrawView(context: Context?, size: Point) :
         View(context) {
-        var TouchScreen: t_TapScreen = t_TapScreen()
-        val bm_size = size
-        var bm = Bitmap.createBitmap(size.x, size.y,
-        Bitmap.Config.ARGB_8888)
+        var raycast: r_Raycast = r_Raycast(size, this.context)
         var paint = Paint(Paint.ANTI_ALIAS_FLAG)
         var rect = Rect(0, 0, size.x, size.y)
 
         override fun onDraw(canvas: Canvas) {
-            DrawCanvas(canvas, bm, rect, paint)
+            DrawCanvas(canvas, raycast.bm, rect, paint)
         }
         override fun onTouchEvent(event: MotionEvent): Boolean {
-            val endColor = EndTapEvent(event, TouchScreen)
-
-            DrawColor(bm_size, bm, if (endColor != 0) endColor else TouchScreen.getColorLongTouch())
-            TapEvent(event, TouchScreen)
+            var endColor = EndTapEvent(event, raycast.TouchScreen)
+            if (endColor != 0.0f) {
+                raycast.player.moveSpeed = endColor.toDouble()
+                raycast.player.go()
+            } else {
+                endColor = TapEvent(event, raycast.TouchScreen).toFloat()
+                if (endColor != 0.0f)
+                    raycast.player.rotate(endColor)
+            }
+            TapEvent(event, raycast.TouchScreen)
+            r_DrawWalls(raycast.bm_size, raycast.bm, raycast)
 
             invalidate()
             return true

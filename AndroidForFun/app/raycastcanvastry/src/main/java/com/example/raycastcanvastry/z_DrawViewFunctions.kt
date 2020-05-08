@@ -1,11 +1,9 @@
 package com.example.raycastcanvastry
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
-import android.view.MotionEvent
 
 fun DrawCanvas(canvas: Canvas, bm: Bitmap, rect: Rect, paint: Paint) {
     canvas.translate(0F, 0F);

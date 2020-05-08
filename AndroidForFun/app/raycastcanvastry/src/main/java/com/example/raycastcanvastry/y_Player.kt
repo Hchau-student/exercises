@@ -19,7 +19,6 @@ public class y_Player {
     var CameraPlane: FVec2 = FVec2(0.0, 0.66) // масштаб
     // угла обзора в possible FOV circle
 
-    //??
     var time = 0.0 //time of current frame
     var oldTime = 0.0 //time of previous frame
 
@@ -36,12 +35,14 @@ public class y_Player {
         Pos.x += Dir.x * moveSpeed
         Pos.y += Dir.y * moveSpeed
     }
-    fun rotate() { //поворот - как? Куда?
+    fun rotate(touch: Float) { //поворот - как? Куда?
         val oldDirX: Double = Dir.x
-        Dir.x = Dir.x * cos(-rotationSpeed) - Dir.y * sin(-rotationSpeed)
-        Dir.y = oldDirX * sin(-rotationSpeed) + Dir.y * cos(-rotationSpeed)
+//        if ()
+        rotationSpeed = (touch).toDouble() / 100
+        Dir.x = Dir.x * cos(rotationSpeed) - Dir.y * sin(rotationSpeed)
+        Dir.y = oldDirX * sin(rotationSpeed) + Dir.y * cos(rotationSpeed)
         val oldPlaneX: Double = CameraPlane.x
-        CameraPlane.x = CameraPlane.x * cos(-rotationSpeed) - CameraPlane.y * sin(-rotationSpeed)
-        CameraPlane.y = oldPlaneX * sin(-rotationSpeed) + CameraPlane.y * cos(-rotationSpeed)
+        CameraPlane.x = CameraPlane.x * cos(rotationSpeed) - CameraPlane.y * sin(rotationSpeed)
+        CameraPlane.y = oldPlaneX * sin(rotationSpeed) + CameraPlane.y * cos(rotationSpeed)
     }
 }

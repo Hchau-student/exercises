@@ -2,7 +2,7 @@ package com.example.raycastcanvastry
 
 import android.view.MotionEvent
 
-fun TapEvent(event: MotionEvent, TouchScreen: t_TapScreen) {
+fun TapEvent(event: MotionEvent, TouchScreen: t_TapScreen): Double {
     when (event.actionMasked) {
         MotionEvent.ACTION_DOWN -> {
             TouchScreen.tupDown(event)
@@ -11,20 +11,21 @@ fun TapEvent(event: MotionEvent, TouchScreen: t_TapScreen) {
             TouchScreen.tupDown(event)
         }
         MotionEvent.ACTION_MOVE -> { //движение
-            TouchScreen.renew(event)
+            return TouchScreen.renew(event)
         }
     }
+    return (0.0)
 }
 
-fun EndTapEvent(event: MotionEvent, TouchScreen: t_TapScreen): Int {
-    var res: Int = 0
+fun EndTapEvent(event: MotionEvent, TouchScreen: t_TapScreen): Float {
+    var res: Float = 0.0f
     when (event.actionMasked) {
         MotionEvent.ACTION_UP -> {
-            res = TouchScreen.getColorShortTouch()
+            res = 0.5f
             TouchScreen.endTouch(event)
         }
         MotionEvent.ACTION_POINTER_UP -> {
-            res = TouchScreen.getColorShortTouch()
+            res = 0.5f
             TouchScreen.endTouch(event)
         }
     }
