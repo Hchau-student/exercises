@@ -1,11 +1,16 @@
 package com.example.raycastcanvastry
 
+import android.R
+import android.content.SharedPreferences
+import android.widget.EditText
 import java.lang.Math.cos
 import java.lang.Math.sin
 
-//import android.graphics.Point
 
-public class y_Player {
+class y_Player {
+    val APP_PREFERENCES = "mysettings"
+    val APP_PREFERENCES_COUNTER = "counter"
+    lateinit var pref: SharedPreferences
 
     //добавить FOV
     var moveSpeed: Double = 0.5
@@ -16,7 +21,7 @@ public class y_Player {
     var Pos: FVec2 = FVec2(22.0, 12.0) //player position
     var Dir: FVec2 = FVec2(-1.0, 0.0) //in
     // possible FOV circle camera direction
-    var CameraPlane: FVec2 = FVec2(0.0, 0.66) // масштаб
+    var CameraPlane: FVec2 = FVec2(0.0, 0.30) // масштаб
     // угла обзора в possible FOV circle
 
     var time = 0.0 //time of current frame
@@ -31,34 +36,27 @@ public class y_Player {
         }
 
     }
-//    fun go() { //за пределами функции обозначить координату и идти к ней
-////        if ()
-//        Pos.x += Dir.x * moveSpeed
-//        Pos.y += Dir.y * moveSpeed
-//    }
+
     fun go(map: z_Map) {
-//    int(posX + dirX * moveSpeed)][int(posY)
     var nextStep: Double = Pos.x + Dir.x * (moveSpeed * 2)
         val newPosx: Double = Pos.x + Dir.x * moveSpeed
         if ((nextStep.toInt() < map.With) and (nextStep.toInt() >= 0)) {
             if ((map.worldMap[nextStep.toInt() + (Pos.y.toInt() * map.With).toInt()] == 0))// and
-//               if (map.worldMap[Pos.x.toInt() + (Pos.y * map.With).toInt()] == 0)
                Pos.x = newPosx
         }
     nextStep = Pos.y + Dir.y * (moveSpeed * 2)
         val newPosy: Double = Pos.y + Dir.y * moveSpeed
         if ((nextStep.toInt() < map.Height) and (nextStep.toInt() >= 0)) {
-                if ((map.worldMap[Pos.x.toInt() + (nextStep.toInt()* map.With).toInt()] == 0))//\\\ and
-//                    if (map.worldMap[(Pos.x + Pos.y * map.With).toInt()] == 0)
+                if ((map.worldMap[Pos.x.toInt() + (nextStep.toInt() * map.With).toInt()] == 0))//\\\ and
             {
                     Pos.y = newPosy
             }
         }
     }
-    fun rotate(touch: Float) { //поворот - как? Куда?
+    fun rotate(touch: Float, inverse: Int) {
+        var inverse1: Int = if (inverse == 0) 1 else -1
         val oldDirX: Double = Dir.x
-//        if ()
-        rotationSpeed = (touch).toDouble() / 100
+        rotationSpeed = (touch).toDouble() / 100 * inverse1
         Dir.x = Dir.x * cos(rotationSpeed) - Dir.y * sin(rotationSpeed)
         Dir.y = oldDirX * sin(rotationSpeed) + Dir.y * cos(rotationSpeed)
         val oldPlaneX: Double = CameraPlane.x

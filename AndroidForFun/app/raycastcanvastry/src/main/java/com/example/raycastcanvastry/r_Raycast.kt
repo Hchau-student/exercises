@@ -11,8 +11,11 @@ class r_Raycast {
     val map: z_Map = z_Map()
     var player: y_Player = y_Player()
     var textures: z_Textures
+    var pref: z_Preferences
+    var wallHeight: Float = 1.0f
 
     constructor(size: Point, context: Context) {
+        this.pref = z_Preferences(context, size)
         this.bm_size = size
         this.bm =  Bitmap.createBitmap(size.x, size.y,
         Bitmap.Config.ARGB_8888)

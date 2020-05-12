@@ -2,17 +2,74 @@ package com.example.raycastcanvastry
 
 import android.graphics.Bitmap
 import android.graphics.Point
+//import jdk.nashorn.internal.objects.ArrayBufferView.buffer
 import java.lang.Math.abs
 import kotlin.math.floor as floor1
 
+
+//made with guide: https://lodev.org/cgtutor/raycasting.html
 //Need to split all of this!!! It's impossible to read!
 fun r_DrawWalls(size: Point, bitmap: Bitmap, raycast: r_Raycast): Bitmap {
     var srcPixels = IntArray(size.x * size.y)
+//
+//    // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
+//    val rayDirX0: Float = (raycast.player.Dir.x - raycast.player.CameraPlane.x).toFloat()
+//    val rayDirY0: Float = (raycast.player.Dir.y - raycast.player.CameraPlane.y).toFloat()
+//    val rayDirX1: Float = (raycast.player.Dir.x + raycast.player.CameraPlane.x).toFloat()
+//    val rayDirY1: Float = (raycast.player.Dir.y + raycast.player.CameraPlane.y).toFloat()
+//
+    for (y in 0..size.y - 1) {
 
-    // raycast should be here
+        val rayDirX0: Float = (raycast.player.Dir.x - raycast.player.CameraPlane.x).toFloat()
+        val rayDirY0: Float = (raycast.player.Dir.y - raycast.player.CameraPlane.y).toFloat()
+        val rayDirX1: Float = (raycast.player.Dir.x + raycast.player.CameraPlane.x).toFloat()
+        val rayDirY1: Float = (raycast.player.Dir.y + raycast.player.CameraPlane.y).toFloat()
+
+        // Current y position compared to the center of the screen (the horizon)
+        val p: Int = y - size.y / 2
+
+        // Vertical position of the camera.
+        val posZ: Float = (0.5 * size.y).toFloat()
+
+        // Horizontal distance from the camera to the floor for the current row.
+        // 0.5 is the z position exactly in the middle between floor and ceiling.
+        val rowDistance = posZ / p
+
+        // calculate the real world step vector we have to add for each x (parallel to camera plane)
+        // adding step by step avoids multiplications with a weight in the inner loop
+        val floorStepX: Float = rowDistance * (rayDirX1 - rayDirX0) / size.x
+        val floorStepY: Float = rowDistance * (rayDirY1 - rayDirY0) / size.x
+
+        // real world coordinates of the leftmost column. This will be updated as we step to the right.
+        var floorX: Float = (raycast.player.Pos.x + rowDistance * rayDirX0).toFloat()
+        var floorY: Float = (raycast.player.Pos.y + rowDistance * rayDirY0).toFloat()
+        for (x in 0..size.x - 1) {
+            // the cell coord is simply got from the integer parts of floorX and floorY
+            val cellX = floorX.toInt()
+            val cellY = floorY.toInt()
+
+            // get the texture coordinate from the fractional part
+            val tx = (((size.x * (floorX - cellX)).toInt() % (size.x - 1))).toInt()
+            val ty = (((size.y * (floorY - cellY))).toInt() % (size.y - 1)).toInt()
+            if (tx < 0) tx * -1
+            if (ty < 0) ty * -1
+            floorX += floorStepX
+            floorY += floorStepY
+
+            // choose texture and draw the pixel
+//            val floorTexture = 3
+//            val ceilingTexture = 6
+            var color: Int = 0
+
+            var texture = raycast.textures.a_text
+            // floor
+            if ((ty < size.y) and (tx < size.x) and (ty > 0) and (tx > 0)) {
+                color = texture[size.x * ty + tx]
+                srcPixels[x + y * size.x] = color
+            }
+        }
+    }
     for (i in 0..size.x - 1) {
-//        for (j in 0..(size.y - 1))
-//            srcPixels[i + j * size.x] = 0x60fa0060
         var cameraX: Double = 2 * i / raycast.bm_size.x.toDouble() - 1 //x-coordinate in camera space
         var rayDirX: Double = raycast.player.Dir.x + raycast.player.CameraPlane.x * cameraX
         var rayDirY:Double = raycast.player.Dir.y + raycast.player.CameraPlane.y * cameraX
@@ -75,7 +132,7 @@ fun r_DrawWalls(size: Point, bitmap: Bitmap, raycast: r_Raycast): Bitmap {
         }
         //Calculate height of line to draw on screen
         //Calculate height of line to draw on screen
-        val lineHeight: Int = (raycast.bm_size.y / perpWallDist).toInt()
+        val lineHeight: Int = ((raycast.bm_size.y / perpWallDist) * raycast.wallHeight).toInt()
 
         //calculate lowest and highest pixel to fill in current stripe
 
@@ -100,45 +157,24 @@ fun r_DrawWalls(size: Point, bitmap: Bitmap, raycast: r_Raycast): Bitmap {
 
         val step: Double = 1.0 * size.y / lineHeight
         var texPos: Double = (drawStart - size.y / 2 + lineHeight / 2) * step
-//
-//        var color: Int
-//        when (raycast.map.worldMap[mapX + mapY * raycast.map.With]) {
-//            1 -> color = 0xffff0000.toInt()
-//            2 -> color = 0xff00ff00.toInt()
-//            3 -> color = 0xff0000ff.toInt()
-//            4 -> color = 0xffffffff.toInt()
-//            else -> color = 0xffffff00.toInt()
-//        }
-//        if(side == 1) {color = color / 2;}
-
 
         //draw the pixels of the stripe as a vertical line
         var textYY: Int = 0 //find begin
         if (lineHeight > size.y)
             textYY = (lineHeight - size.y) / 2
-//        while ((lineHeight - ((textYY * size.x) / (lineHeight) * 1.97).toInt() * size.x) > size.y)
-//            textYY++
+
         for (j in 0..size.y - 1) {
             if (j < drawStart || j > drawEnd)
-                srcPixels[i + j * size.x] = 0xff000000.toInt()
-//            else
-//                srcPixels[i + j * size.x] = color
+                ;
+//                srcPixels[i + j * size.x] = 0xff000000.toInt()
             else {
                 srcPixels[i + j * size.x] = text[texX + ((textYY * size.x) / (lineHeight) * 1.97).toInt() * size.x]
-//                var color: Int = text[texX + ((textYY * size.x) / (lineHeight) * 1.97).toInt() * size.x]
                 textYY++
-//            if (side === 1) {
-//                color = color - 0x55000000
-////                srcPixels[i + j * size.x] = 0xff000000.toInt()
-////                srcPixels[i + j * size.x] += color
-////                color
-//                //подвигать rgb и сделать потемнее (поменьше значения)
-//                //объединить обратно в color
-//            }
-//                srcPixels[i + j * size.x] = color
             }
         }
     }
+
+
     bitmap.setPixels(srcPixels, 0, size.x,
         0, 0, size.x, size.y)
     return (bitmap)

@@ -1,14 +1,16 @@
 package com.example.raycastcanvastry
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 
-fun DrawCanvas(canvas: Canvas, bm: Bitmap, rect: Rect, paint: Paint) {
-    canvas.translate(0F, 0F);
+fun DrawCanvas(canvas: Canvas, bm: Bitmap, pref: z_Preferences, rect: Rect, paint: Paint) {
+    var rect2 = Rect(30, 30, 125, 125)
+//    var callBM: Bitmap = BitmapFactory.decodeResource(context?.getResources(), R.drawable.gradient)
+//    var rect = Rect(0, 0, size.x, size.y)
+    canvas.translate(0F, 0F)
     canvas.save()
     canvas.translate(0f, 0f)
+    canvas.drawBitmap(pref.callBM!!, null, rect!!, paint)
     canvas.drawBitmap(bm!!, null, rect!!, paint)
+    canvas.drawBitmap(pref.bm!!, null, rect2!!, paint)
     canvas.restore()
 }

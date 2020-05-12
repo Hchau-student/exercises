@@ -43,51 +43,49 @@ class t_TapScreen {
 
     fun renew(ev: MotionEvent): Double {
         var res: Double = 0.0
-        if (ev.actionIndex == FirstTouch.pointer && FirstTouch.hold == true) {
+        if (ev.actionIndex == FirstTouch.pointer) {
             FirstTouch.End = FlVec2(ev.x, ev.y)
-            if (FirstTouch.Begin.equals(FirstTouch.End) == false) {
-                FirstTouch.isMoving = true
-                res = (FirstTouch.Begin.x - FirstTouch.End.x).toDouble()
-                FirstTouch.Begin.x = FirstTouch.End.x
-                FirstTouch.Begin.y = FirstTouch.End.y
-                return (res)
-            }
-            //повернуться
-        } else if (ev.actionIndex == SecondTouch.pointer && SecondTouch.hold == true) {
+            FirstTouch.isMoving = true
+            res = (FirstTouch.Begin.x - FirstTouch.End.x).toDouble()
+            FirstTouch.Begin = FlVec2(ev.x, ev.y)
+            return (res)
+        } else if (ev.actionIndex == SecondTouch.pointer) {
             SecondTouch.End = FlVec2(ev.x, ev.y)
-            if (SecondTouch.End.equals(SecondTouch.Begin) == false) {
-//                return (SecondTouch.Begin.x - SecondTouch.End.x).toDouble()
-
-                res = (SecondTouch.Begin.x - SecondTouch.End.x).toDouble()
-                SecondTouch.Begin.x = SecondTouch.End.x
-                SecondTouch.Begin.y = SecondTouch.End.y
-            }
+            SecondTouch.isMoving = true
+            res = (SecondTouch.Begin.x - SecondTouch.End.x).toDouble()
+            SecondTouch.Begin =  FlVec2(ev.x, ev.y)
+            return res
         }
         return (res)
     }
 
     fun endTouch(ev: MotionEvent) {
         if (ev.actionIndex == SecondTouch.pointer) {
-            if (SecondTouch.hold == true)
+//            if (SecondTouch.hold == true) {
                 SecondTouch.hold = false
+                SecondTouch.isMoving = false
+//            }
         }
         if (ev.actionIndex == FirstTouch.pointer) {
             FirstTouch.hold = false
+            FirstTouch.isMoving = false
         }
     }
 
 
 
 
-
     //проверка
-    fun getColorShortTouch(): Float {
-        if (FirstTouch.hold == true && FirstTouch.isMoving == false) {
-            return (FirstTouch.Begin.x - FirstTouch.End.x)
-        } else if (SecondTouch.hold == true && SecondTouch.isMoving == false) {
-            return (SecondTouch.Begin.x - SecondTouch.End.x)
+    fun isShortTouch(id: Int): Boolean {
+        if ((FirstTouch.isMoving == false) && (id == FirstTouch.pointer)
+            && FirstTouch.hold == true) {
+                return (true)
         }
-        return (0.0f)
+        if ((SecondTouch.isMoving == false) && (id == SecondTouch.pointer)
+            && SecondTouch.hold == true) {
+            return (true)
+        }
+        return (false)
     }
 
     fun getColorLongTouch(): Float {
