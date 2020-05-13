@@ -14,6 +14,21 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {  // <--- these lines should be added
+            cmake {
+
+                // Passes optional arguments to CMake.
+//                arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang"
+//
+//                // Sets a flag to enable format macro constants for the C compiler.
+//                cFlags "-D__STDC_FORMAT_MACROS"
+
+                // Sets optional flags for the C++ compiler.
+//                cppFlags "-fexceptions", "-frtti"
+                cppFlags "-std=c++11"
+            }
+            // <--- these lines should be added
+        }                       //<--- these lines should be added
     }
 
     buildTypes {
@@ -21,6 +36,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    externalNativeBuild {               //<--- these lines should be added
+        cmake {                        // <--- these lines should be added
+            path "CMakeLists.txt"      // <--- these lines should be added
+        }                              // <--- these lines should be added
     }
 
 }
