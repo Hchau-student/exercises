@@ -11,9 +11,9 @@ import kotlin.math.floor as floor1
 
 //made with guide: https://lodev.org/cgtutor/raycasting.html
 //Need to split all of this!!! It's impossible to read!
-fun r_DrawWalls(size: Point, bitmap: Bitmap, raycast: r_Raycast): Bitmap {
+fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int, srcPixels: IntArray) {
 
-    var srcPixels = IntArray(size.x * size.y)
+
     var rayDirX: Float
     var rayDirY: Float
     var mapX: Int
@@ -52,9 +52,6 @@ fun r_DrawWalls(size: Point, bitmap: Bitmap, raycast: r_Raycast): Bitmap {
     var rowDistance: Float
     var floorX: Float
     var floorY: Float
-//    var cellX: Int
-//    var cellY: Int
-    //    var str: String = stringFromJNI()
 
     var tx: Int
     var ty: Int
@@ -66,7 +63,12 @@ fun r_DrawWalls(size: Point, bitmap: Bitmap, raycast: r_Raycast): Bitmap {
     var texture: IntArray = raycast.textures.a_text
     var PosX = raycast.player.Pos.x
     var PosY = raycast.player.Pos.y
-        for (i in 0..size.x - 1) {
+    var i: Int = start
+    while ((i < end) and (i < size.x)) {
+        if (i % 2 == 1) {
+            i++
+            continue
+        }
         cameraX = (2 * i / raycast.bm_size.x.toFloat() - 1) //x-coordinate in camera space
         rayDirX = DirX + PlaneX * cameraX
         rayDirY = DirY + PlaneY * cameraX
@@ -154,21 +156,19 @@ fun r_DrawWalls(size: Point, bitmap: Bitmap, raycast: r_Raycast): Bitmap {
         var j = 0
         while (j < size.y) {
             while ((j >= drawEnd) and (j < size.y)) {
-//                p = j - size.y / 2
-
-                // Vertical position of the camera.
-//                posZ = (0.5 * size.y).toFloat()
-
-                // Horizontal distance from the camera to the floor for the current row.
-                // 0.5 is the z position exactly in the middle between floor and ceiling.
-//                rowDistance = TryMakeRaycastFaster(posZ, j)
+                if (j % 2 == 1)
+                {
+                    srcPixels[i + (j) * size.x] = srcPixels[i + (j - 1) * size.x]
+                    if ((i + 1 < size.x) and (j < size.y))
+                        srcPixels[i + 1 + j * size.x] = srcPixels[i + (j - 1) * size.x]
+                    j++
+                    continue
+                }
                 rowDistance = (posZ / (j - posZ))
                 // calculate the real world step vector we have to add for each x (parallel to camera plane)
                 // adding step by step avoids multiplications with a weight in the inner loop
                 floorX = ((PosX + rowDistance * rayDirX0) + (rowDistance * (rayDirX1 - rayDirX0) / size.x) * i) % 1
                 floorY = ((PosY + rowDistance * rayDirY0) + (rowDistance * (rayDirY1 - rayDirY0) / size.x) * i) % 1
-//                tx = (((((PosX + rowDistance * rayDirX0) +
-//                        ((rowDistance * (rayDirX1 - rayDirX0) / size.x) * i) % 1).to + PosX) % (size.x - 1))).toInt()
                 tx = (((size.x * (floorX)).toInt() % (size.x - 1))).toInt()
                 ty = (((size.y * (floorY))).toInt() % (size.y - 1)).toInt()
                 if (tx < 0) tx * -1
@@ -176,18 +176,26 @@ fun r_DrawWalls(size: Point, bitmap: Bitmap, raycast: r_Raycast): Bitmap {
                 if ((ty < size.y) and (tx < size.x) and (ty > 0) and (tx > 0)) {
                     color = texture[size.x * ty + tx]
                     srcPixels[i + j * size.x] = color
+                if ((i + 1 < size.x) and (j < size.y))
+                    srcPixels[i + 1 + j * size.x] = srcPixels[i + j * size.x]
                 }
                 j++
+
             }
             if ((j > drawStart) and (j < drawEnd)) {
                 srcPixels[i + j * size.x] = text[texX + ((textYY * size.x) / (lineHeight) * 1.97).toInt() * size.x]
                 textYY++
             }
+            if ((i + 1 < size.x) and (j < size.y))
+                srcPixels[i + 1 + j * size.x] = srcPixels[i + j * size.x]
             j++
         }
+        i++
     }
 
-    bitmap.setPixels(srcPixels, 0, size.x,
-        0, 0, size.x, size.y)
-    return (bitmap)
+//    start = i
+//    end = i + 100
+//    bitmap.setPixels(srcPixels, 0, size.x,
+//        0, 0, size.x, size.y)
+//    return (bitmap)
 }

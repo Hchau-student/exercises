@@ -8,14 +8,18 @@
 #include <jni.h>
 #include <string>
 using namespace std;
-
+#include <android/bitmap.h>
+//#include <android/>
 #include <math.h>
-
+//#include <android/gra>
+//#include <>
 #include <vector>
 #define JNIIMPORT
 #define JNIEXPORT  __attribute__ ((visibility ("default")))
 #define JNICALL
+//import android.graphics.Canvas
 
+//#include <>
 
 //работает отстойно, так же медленно, как и код на котлине,
 //но ещё и текстуры отстойно отображаются; если получится сделать
@@ -53,6 +57,8 @@ extern "C" JNIEXPORT jintArray JNICALL Java_com_example_raycastcanvastry_MainAct
         jfloat pDirX, jfloat pDirY, jfloat pCameraPlaneX, jfloat pCameraPlaneY, jfloat PosX, jfloat PosY,
         jintArray worldMap, jint wm_w, jint wm_h) {
 
+//    TCanvas k;
+//    jclass clazz = (env)->FindClass(env, "src/");
     jboolean j;
     Point size(x, y);
     float rayDirX;

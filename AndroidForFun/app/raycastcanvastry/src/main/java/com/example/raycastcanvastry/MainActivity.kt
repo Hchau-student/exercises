@@ -8,9 +8,12 @@ import android.graphics.Paint
 import android.graphics.Point
 import android.graphics.Rect
 import android.os.Bundle
+import android.os.Handler
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import java.util.concurrent.TimeUnit
+
 
 class MainActivity : AppCompatActivity() {
     init {//библиотека компилится CMake'ом, лежит в директории приложухи;
@@ -77,15 +80,72 @@ class MainActivity : AppCompatActivity() {
             raycast.pref.call = false
         }
         override fun onTouchEvent(event: MotionEvent): Boolean {
-            raycast.pref.inverse = variable_progress
+//            raycast.pref.inverse = variable_progress
+            var start: Int = -100
+            var srcPixels = IntArray(raycast.bm_size.x * raycast.bm_size.y)
+            var end: Int = 0
+
             PlayerMove(raycast, event)
-            //
-//            image = stringFromJNI(raycast.bm_size.x, raycast.bm_size.y,
-//                raycast.textures.a_text, raycast.textures.b_text, raycast.textures.c_text,
-//                raycast.player.Dir.x, raycast.player.Dir.y, raycast.player.CameraPlane.x, raycast.player.CameraPlane.y,
-//                raycast.player.Pos.x, raycast.player.Pos.y, raycast.map.worldMap, raycast.map.With, raycast.map.Height)
-//            raycast.bm.setPixels(image, 0, raycast.bm_size.x,
-//                0, 0, raycast.bm_size.x, raycast.bm_size.y)
+            val runnable: Runnable = object : Runnable {
+
+                override fun run() {
+                    r_DrawWalls(raycast.bm_size, raycast, start, end, srcPixels)
+                    synchronized(this){
+//                        this.notify()
+                    }
+                    }
+                }
+            var thread: Thread = Thread()
+
+//            while(end <= raycast.bm_size.x) {
+////                raycast.bm.setPixels(srcPixels, 0, raycast.bm_size.x,
+////                    0, 0, raycast.bm_size.x, raycast.bm_size.y)
+//                thread = Thread(runnable)
+//                start = end
+//                end += 100
+//                thread.start()
+//            }
+            while(end <= raycast.bm_size.x) {
+//                raycast.bm.setPixels(srcPixels, 0, raycast.bm_size.x,
+//                    0, 0, raycast.bm_size.x, raycast.bm_size.y)
+                thread = Thread(runnable)
+                start = end
+                end += 100
+                thread.start()
+//                thread.join()
+            }
+            thread.join()
+
+//            while (end >= 0) {
+//                thread.join()
+//                end -= 50
+//            }
+//            start = 0
+//            end = 100
+//            thread.run {
+//
+//                //            while(end <= raycast.bm_size.x) {
+//                ////                raycast.bm.setPixels(srcPixels, 0, raycast.bm_size.x,
+//                ////                    0, 0, raycast.bm_size.x, raycast.bm_size.y)
+//                //                thread = Thread(runnable)
+//                //                start = end
+//                //                end += 100
+//                //                thread.start()
+//                //            }
+//                while(end <= raycast.bm_size.x) {
+//        //                raycast.bm.setPixels(srcPixels, 0, raycast.bm_size.x,
+//        //                    0, 0, raycast.bm_size.x, raycast.bm_size.y)
+//                        thread = Thread(runnable)
+//                        start = end
+//                        end += 100
+//                    thread.start()
+//                    }
+//            }
+//            thread.join()
+
+
+            raycast.bm.setPixels(srcPixels, 0, raycast.bm_size.x,
+                0, 0, raycast.bm_size.x, raycast.bm_size.y)
             invalidate()
             return true
         }
