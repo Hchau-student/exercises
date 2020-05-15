@@ -13,7 +13,6 @@ import kotlin.math.floor as floor1
 //Need to split all of this!!! It's impossible to read!
 fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int, srcPixels: IntArray) {
 
-
     var rayDirX: Float
     var rayDirY: Float
     var mapX: Int
@@ -64,8 +63,9 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int, srcPixels
     var PosX = raycast.player.Pos.x
     var PosY = raycast.player.Pos.y
     var i: Int = start
+    var resolution: Int = (21 - raycast.pref.resolution)
     while ((i < end) and (i < size.x)) {
-        if (i % 2 == 1) {
+        if (i % resolution != 0) {
             i++
             continue
         }
@@ -78,9 +78,6 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int, srcPixels
         deltaDistX = abs(1 / rayDirX)
         deltaDistY = abs(1 / rayDirY)
         side = 0
-
-//            RaycastFasterTry()
-
         if(rayDirX < 0) {
             stepX = -1
             sideDistX = (PosX - mapX) * deltaDistX
@@ -156,11 +153,17 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int, srcPixels
         var j = 0
         while (j < size.y) {
             while ((j >= drawEnd) and (j < size.y)) {
-                if (j % 2 == 1)
+                if (j % (resolution) != 0)
                 {
                     srcPixels[i + (j) * size.x] = srcPixels[i + (j - 1) * size.x]
-                    if ((i + 1 < size.x) and (j < size.y))
-                        srcPixels[i + 1 + j * size.x] = srcPixels[i + (j - 1) * size.x]
+                    var k: Int = 1
+                    while ((i + k < size.x) and (k < resolution)) {
+                        if ((i + k < size.x) and (j < size.y))
+                            srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
+                        k++
+                    }
+//                    if ((i + 1 < size.x) and (j < size.y))
+//                        srcPixels[i + 1 + j * size.x] = srcPixels[i + (j - 1) * size.x]
                     j++
                     continue
                 }
@@ -176,26 +179,51 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int, srcPixels
                 if ((ty < size.y) and (tx < size.x) and (ty > 0) and (tx > 0)) {
                     color = texture[size.x * ty + tx]
                     srcPixels[i + j * size.x] = color
-                if ((i + 1 < size.x) and (j < size.y))
-                    srcPixels[i + 1 + j * size.x] = srcPixels[i + j * size.x]
+//                if ((i + 1 < size.x) and (j < size.y))
+//                    srcPixels[i + 1 + j * size.x] = srcPixels[i + j * size.x]
+//                }
+//                j++
+                    var k: Int = 1
+                    while ((i + k < size.x) and (k < resolution)) {
+                        if ((i + k < size.x) and (j < size.y))
+                            srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
+                        k++
+                    }
                 }
                 j++
-
             }
-            if ((j > drawStart) and (j < drawEnd)) {
-                srcPixels[i + j * size.x] = text[texX + ((textYY * size.x) / (lineHeight) * 1.97).toInt() * size.x]
+            if ((j % (resolution) != 0) and ((j > drawStart) and (j < drawEnd) and (j < size.y)))
+            {
+                srcPixels[i + (j) * size.x] = srcPixels[i + (j - 1) * size.x]
+                var k: Int = 1
+                while ((i + k < size.x) and (k < resolution)) {
+                    if ((i + k < size.x) and (j < size.y))
+                        srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
+                    k++
+                }
+//                if ((i + 1 < size.x) and (j < size.y))
+//                    srcPixels[i + 1 + j * size.x] = srcPixels[i + (j - 1) * size.x]
+                textYY++
+                j++
+                continue
+            }
+            if ((j > drawStart) and (j < drawEnd) and (j < size.y)) {
+                if ((texX > size.x) or (((textYY * size.x) / (lineHeight) * 1.97) > size.y)) {
+                        textYY++
+                        j++
+                        continue
+                    }
+                srcPixels[i + j * size.x] = text[texX + ((textYY * size.x) / (lineHeight) * raycast.wallH).toInt() * size.x]
                 textYY++
             }
-            if ((i + 1 < size.x) and (j < size.y))
-                srcPixels[i + 1 + j * size.x] = srcPixels[i + j * size.x]
+            var k: Int = 1
+            while ((i + k < size.x) and (k < resolution)) {
+                if ((i + k < size.x) and (j < size.y))
+                    srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
+                k++
+            }
             j++
         }
         i++
     }
-
-//    start = i
-//    end = i + 100
-//    bitmap.setPixels(srcPixels, 0, size.x,
-//        0, 0, size.x, size.y)
-//    return (bitmap)
 }

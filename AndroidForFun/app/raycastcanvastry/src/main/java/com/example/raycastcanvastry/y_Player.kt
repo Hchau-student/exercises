@@ -56,7 +56,7 @@ class y_Player {
         }
     }
     fun rotate(touch: Float, inverse: Int) {
-        var inverse1: Int = if (inverse == 0) 1 else -1
+        var inverse1: Int = if (inverse == 1) 1 else -1
         val oldDirX: Float = Dir.x
         rotationSpeed = (touch) / 100 * inverse1
         Dir.x = (Dir.x * cos(rotationSpeed) - Dir.y * sin(rotationSpeed))

@@ -13,10 +13,12 @@ class r_Raycast {
     var textures: z_Textures
     var pref: z_Preferences
     var wallHeight: Float = 1.0f
+    val wallH: Float
 
     constructor(size: Point, context: Context) {
         this.pref = z_Preferences(context, size)
         this.bm_size = size
+        this.wallH = size.y.toFloat() / size.x.toFloat()
         this.bm =  Bitmap.createBitmap(size.x, size.y,
         Bitmap.Config.ARGB_8888)
         this.TouchScreen = t_TapScreen()

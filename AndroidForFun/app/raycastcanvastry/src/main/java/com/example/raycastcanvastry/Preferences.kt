@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 
@@ -20,9 +21,11 @@ class Preferences : AppCompatActivity() {
     val APP_PREFERENCES = "mysettings"
     val APP_PREFERENCES_COUNTER = "counter"
     val APP_PREFERENCES_COUNTER2 = "counter2"
+    val APP_RESOLUTION = "resolution"
     lateinit var pref: SharedPreferences
     var variable_progress: Int = 0
     var variable_progress2: Int = 0
+    var resolution_progress: Int = 17
 
     @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +41,7 @@ class Preferences : AppCompatActivity() {
         val editor = pref.edit()
         editor.putInt(APP_PREFERENCES_COUNTER, variable_progress)
         editor.putInt(APP_PREFERENCES_COUNTER2, variable_progress2)
+        editor.putInt(APP_RESOLUTION, resolution_progress)
         editor.apply()
     }
     override fun onResume() {
@@ -48,6 +52,9 @@ class Preferences : AppCompatActivity() {
         }
         if (pref.contains(APP_PREFERENCES_COUNTER2)) {
             variable_progress2 = pref.getInt(APP_PREFERENCES_COUNTER2, 0)
+        }
+        if (pref.contains(APP_RESOLUTION)) {
+            resolution_progress = pref.getInt(APP_RESOLUTION, 0)
         }
     }
 
@@ -68,14 +75,18 @@ class Preferences : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.Q)
     fun tapEventGameControl(v: View?) {
 
-
         setContentView(R.layout.preferences_control_game)
         var background: View = findViewById(R.id.background)
         background.setBackgroundResource(R.drawable.gradient)
         var inverse: SeekBar = findViewById(R.id.inverse)
         var inverse2: SeekBar = findViewById(R.id.seekBar2)
+        var resolution: SeekBar = findViewById(R.id.resolutionBar)
+        var resolutionText: TextView = findViewById(R.id.resolutionText)
         inverse.setProgress(variable_progress)
         inverse2.setProgress(variable_progress2)
+        resolution.setProgress(resolution_progress)
+        resolutionText.setText("image resolution = " + resolution_progress)
+
 
         inverse.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
@@ -83,7 +94,6 @@ class Preferences : AppCompatActivity() {
                 variable_progress = i
                 var sharedPref = getSharedPreferences(str_progress, Context.MODE_PRIVATE)
                 val editor: Editor = sharedPref.edit()
-                editor.putInt(getString(R.string.inverse), variable_progress)
                 editor.commit()
             }
 
@@ -99,7 +109,7 @@ class Preferences : AppCompatActivity() {
                 variable_progress2 = i
                 var sharedPref = getSharedPreferences(str_progress, Context.MODE_PRIVATE)
                 val editor: Editor = sharedPref.edit()
-                editor.putInt(getString(R.string.inverse), variable_progress2)
+//                editor.putInt(getString(R.string.inverse), variable_progress2)
                 editor.commit()
             }
 
@@ -109,7 +119,25 @@ class Preferences : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar) {
             }
         })
-    }
+    resolution.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+            var str_progress = getString(R.string.inverse)
+            resolution_progress = i
+            var sharedPref = getSharedPreferences(str_progress, Context.MODE_PRIVATE)
+            val editor: Editor = sharedPref.edit()
+//            editor.putInt(getString(R.string.inverse), resolution_progress)
+            editor.commit()
+            resolutionText.setText("image resolution = " + resolution_progress)
+        }
+
+        override fun onStartTrackingTouch(seekBar: SeekBar) {
+        }
+
+        override fun onStopTrackingTouch(seekBar: SeekBar) {
+        }
+    })
+
+}
 
 
 

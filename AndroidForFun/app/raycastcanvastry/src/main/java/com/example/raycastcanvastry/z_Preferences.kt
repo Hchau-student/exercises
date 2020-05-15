@@ -27,6 +27,7 @@ class z_Preferences {
     var call: Boolean
     var call_bm: IntArray
     var inverse: Int = 0
+    var resolution: Int = 18
     constructor(context: Context, size: Point) {
         this.call = false
         call_bm = IntArray(size.x * size.y)

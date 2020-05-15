@@ -68,6 +68,31 @@
         android:thumb="@drawable/potato"
         app:layout_constraintVertical_bias="0.400" />
 
+    <TextView
+        android:id="@+id/resolutionText"
+        android:layout_width="150dp"
+        android:layout_height="22dp"
+        android:layout_marginBottom="8dp"
+        android:text="image resolution"
+        app:layout_constraintBottom_toTopOf="@+id/resolutionBar"
+        app:layout_constraintEnd_toEndOf="@+id/resolutionBar"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/resolutionBar" />
+
+    <SeekBar
+        android:id="@+id/resolutionBar"
+        android:layout_width="170dp"
+        android:layout_height="29dp"
+        android:max="20"
+        android:progress="17"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:progressDrawable="@drawable/grad"
+        android:thumb="@drawable/potato"
+        app:layout_constraintVertical_bias="0.550" />
+
     <Button
         android:id="@+id/button4"
         android:layout_width="155dp"

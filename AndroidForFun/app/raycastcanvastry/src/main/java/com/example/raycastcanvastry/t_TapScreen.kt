@@ -1,6 +1,7 @@
 package com.example.raycastcanvastry
 
 import android.view.MotionEvent
+import kotlin.math.abs
 
 class t_TapScreen {
     var FirstTouch: Touch =
@@ -44,12 +45,16 @@ class t_TapScreen {
     fun renew(ev: MotionEvent): Double {
         var res: Double = 0.0
         if (ev.actionIndex == FirstTouch.pointer) {
+            if ((abs(FirstTouch.Begin.x - ev.x) <= 10.0) and (abs(FirstTouch.Begin.y - ev.y) <= 10.0))
+                return (res)
             FirstTouch.End = FlVec2(ev.x, ev.y)
             FirstTouch.isMoving = true
             res = (FirstTouch.Begin.x - FirstTouch.End.x).toDouble()
             FirstTouch.Begin = FlVec2(ev.x, ev.y)
             return (res)
         } else if (ev.actionIndex == SecondTouch.pointer) {
+            if ((abs(SecondTouch.Begin.x - ev.x) <= 10.0) and (abs(SecondTouch.Begin.y - ev.y) <= 10.0))
+                return (res)
             SecondTouch.End = FlVec2(ev.x, ev.y)
             SecondTouch.isMoving = true
             res = (SecondTouch.Begin.x - SecondTouch.End.x).toDouble()
