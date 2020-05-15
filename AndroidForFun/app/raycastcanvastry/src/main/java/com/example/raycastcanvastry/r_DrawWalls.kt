@@ -11,8 +11,9 @@ import kotlin.math.floor as floor1
 
 //made with guide: https://lodev.org/cgtutor/raycasting.html
 //Need to split all of this!!! It's impossible to read!
-fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int, srcPixels: IntArray) {
+fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
 
+    var srcPixels: IntArray = IntArray(size.x * size.y)
     var rayDirX: Float
     var rayDirY: Float
     var mapX: Int
@@ -148,28 +149,26 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int, srcPixels
         textYY = 0 //find begin
         if (lineHeight > size.y)
             textYY = (lineHeight - size.y) / 2
-//        texture = raycast.textures.a_text
 
         var j = 0
         while (j < size.y) {
-            while ((j >= drawEnd) and (j < size.y)) {
+            while (((j >= drawEnd)) and (j < size.y)) {
                 if (j % (resolution) != 0)
                 {
                     srcPixels[i + (j) * size.x] = srcPixels[i + (j - 1) * size.x]
+                    srcPixels[i + (size.y - j) * size.x] = srcPixels[i + (j - 1) * size.x]
                     var k: Int = 1
                     while ((i + k < size.x) and (k < resolution)) {
-                        if ((i + k < size.x) and (j < size.y))
+                        if ((i + k < size.x) and (j < size.y)) {
                             srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
+                            srcPixels[i + k + (size.y - j) * size.x] = srcPixels[i + j * size.x]
+                        }
                         k++
                     }
-//                    if ((i + 1 < size.x) and (j < size.y))
-//                        srcPixels[i + 1 + j * size.x] = srcPixels[i + (j - 1) * size.x]
                     j++
                     continue
                 }
-                rowDistance = (posZ / (j - posZ))
-                // calculate the real world step vector we have to add for each x (parallel to camera plane)
-                // adding step by step avoids multiplications with a weight in the inner loop
+                rowDistance = (posZ / (j - posZ))  * raycast.wallHeight
                 floorX = ((PosX + rowDistance * rayDirX0) + (rowDistance * (rayDirX1 - rayDirX0) / size.x) * i) % 1
                 floorY = ((PosY + rowDistance * rayDirY0) + (rowDistance * (rayDirY1 - rayDirY0) / size.x) * i) % 1
                 tx = (((size.x * (floorX)).toInt() % (size.x - 1))).toInt()
@@ -179,14 +178,13 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int, srcPixels
                 if ((ty < size.y) and (tx < size.x) and (ty > 0) and (tx > 0)) {
                     color = texture[size.x * ty + tx]
                     srcPixels[i + j * size.x] = color
-//                if ((i + 1 < size.x) and (j < size.y))
-//                    srcPixels[i + 1 + j * size.x] = srcPixels[i + j * size.x]
-//                }
-//                j++
+                    srcPixels[i + (size.y - j) * size.x] = color
                     var k: Int = 1
                     while ((i + k < size.x) and (k < resolution)) {
-                        if ((i + k < size.x) and (j < size.y))
+                        if ((i + k < size.x) and (j < size.y)) {
                             srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
+                            srcPixels[i + k + (size.y - j) * size.x] = srcPixels[i + j * size.x]
+                        }
                         k++
                     }
                 }
@@ -197,18 +195,17 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int, srcPixels
                 srcPixels[i + (j) * size.x] = srcPixels[i + (j - 1) * size.x]
                 var k: Int = 1
                 while ((i + k < size.x) and (k < resolution)) {
-                    if ((i + k < size.x) and (j < size.y))
+                    if ((i + k < size.x) and (j < size.y)) {
                         srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
+                    }
                     k++
                 }
-//                if ((i + 1 < size.x) and (j < size.y))
-//                    srcPixels[i + 1 + j * size.x] = srcPixels[i + (j - 1) * size.x]
                 textYY++
                 j++
                 continue
             }
             if ((j > drawStart) and (j < drawEnd) and (j < size.y)) {
-                if ((texX > size.x) or (((textYY * size.x) / (lineHeight) * 1.97) > size.y)) {
+                if ((texX > size.x) or (((textYY * size.x) / (lineHeight) * raycast.wallH) > size.y)) {
                         textYY++
                         j++
                         continue
@@ -218,12 +215,16 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int, srcPixels
             }
             var k: Int = 1
             while ((i + k < size.x) and (k < resolution)) {
-                if ((i + k < size.x) and (j < size.y))
+                if ((i + k < size.x) and (j < size.y) and (j >= 0)) {
                     srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
+                }
                 k++
             }
             j++
         }
         i++
     }
+    raycast.bm.setPixels(srcPixels, 0, size.x,
+        0, 0, size.x, size.y)
+//    return (bitmap)
 }

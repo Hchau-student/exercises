@@ -48,26 +48,9 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(DrawView(this, size, r))
     }
-    override fun onResume() {
-        super.onResume()
-
-        if (pref.contains(APP_PREFERENCES_COUNTER)) {
-            variable_progress = pref.getInt(APP_PREFERENCES_COUNTER, 0)
-        }
-        if (pref.contains(APP_PREFERENCES_COUNTER2)) {
-            my_val = (pref.getInt(APP_PREFERENCES_COUNTER2, 0) + 1) * 0.25f
-            my_val = 1.0f
-        }
-        if (pref.contains(APP_RESOLUTION)) {
-            resolution = pref.getInt(APP_RESOLUTION, 0)
-        }
-    }
 
     internal inner class DrawView(context: Context?, size: Point, ray: r_Raycast) :
         View(context) {
-        var image: IntArray = IntArray(0)
-
-
         var raycast = ray
         var paint = Paint(Paint.ANTI_ALIAS_FLAG)
         var rect = Rect(0, 0, size.x, size.y)
@@ -84,40 +67,19 @@ class MainActivity : AppCompatActivity() {
             raycast.pref.call = false
         }
         override fun onTouchEvent(event: MotionEvent): Boolean {
-            var start: Int = 0
             if (pref.contains(APP_PREFERENCES_COUNTER)) {
                 variable_progress = pref.getInt(APP_PREFERENCES_COUNTER, 0)
             }
-//            if (pref.contains(APP_RESOLUTION)) {
-                raycast.pref.resolution = resolution
-//            }
-            raycast.pref.inverse = if (variable_progress == 1) 1 else -1
-            var srcPixels = IntArray(raycast.bm_size.x * raycast.bm_size.y)
-            var end: Int = 100
-
+            if (pref.contains(APP_RESOLUTION)) {
+                resolution = pref.getInt(APP_RESOLUTION, 0)
+            }
+            if (pref.contains(APP_PREFERENCES_COUNTER2)) {
+                my_val = (pref.getInt(APP_PREFERENCES_COUNTER2, 0) + 1).toFloat() * 0.25f
+            }
+            raycast.pref.inverse = if (variable_progress == 0) 1 else -1
+            raycast.pref.resolution = resolution
+            raycast.wallHeight = my_val
             PlayerMove(raycast, event)
-            val runnable: Runnable = object : Runnable {
-
-                override fun run() {
-                    r_DrawWalls(raycast.bm_size, raycast, start, end, srcPixels)
-                    synchronized(this) {
-                    }
-                }
-            }
-            var thread: Thread = Thread()
-
-            var step: Int = raycast.bm_size.x / 2
-            start = -step
-            end = 0
-            while(end <= raycast.bm_size.x) {
-                thread = Thread(runnable)
-                start = end
-                end += step
-                thread.start()
-                thread.join()
-            }
-            raycast.bm.setPixels(srcPixels, 0, raycast.bm_size.x,
-                0, 0, raycast.bm_size.x, raycast.bm_size.y)
             invalidate()
             return true
         }

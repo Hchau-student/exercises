@@ -117,5 +117,6 @@ fun PlayerMove(r: r_Raycast, ev: MotionEvent) {
             r.player.rotate(TouchCoord, r.pref.inverse)
     }
     EndTapEvent(ev, r.TouchScreen)
+    r_DrawWalls(r.bm_size, r, 0, r.bm_size.x)
 }
 
