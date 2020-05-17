@@ -45,7 +45,7 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
     var text: IntArray
 
     var posZ: Float = 0.5f * size.y
-    var posZC: Float = (0.5f + raycast.wallHeight - 1.0f) * size.y//меняется положение камеры по центру, алло
+    var posZC: Float = (-raycast.pref.cameraHeight + raycast.wallHeight) * size.y//меняется положение камеры по центру, алло
 
     var rowDistance: Float
     var floorX: Float
@@ -155,11 +155,11 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
         var j = 0
         while (j < size.y) {
             while (((j >= drawEnd)) and (j < size.y)) {
-                if (raycast.pref.cameraHeight != 0.5f)
-                {
-                    j++
-                    continue
-                }
+//                if (raycast.pref.cameraHeight != 0.5f)
+//                {
+//                    j++
+//                    continue
+//                }
                 if (j % (resolution) != 0)
                 {
                     srcPixels[i + (j) * size.x] = srcPixels[i + (j - 1) * size.x]
@@ -177,7 +177,7 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
                     j++
                     continue
                 }
-                rowDistance = (posZ / (j - posZ))
+                rowDistance = (posZ / (j - posZ)) * (raycast.pref.cameraHeight * 2)
 //                rowDistance = (posZ / (j - posZ))
                 floorX = ((PosX + rowDistance * rayDirX0) + (rowDistance * (rayDirX1 - rayDirX0) / size.x) * i) % 1
                 floorY = ((PosY + rowDistance * rayDirY0) + (rowDistance * (rayDirY1 - rayDirY0) / size.x) * i) % 1
@@ -203,11 +203,11 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
                 j++
             }
             while (((j <= drawStart))) {
-                if (raycast.pref.cameraHeight != 0.5f)
-                {
-                    j++
-                    continue
-                }
+//                if (raycast.pref.cameraHeight != 0.5f)
+//                {
+//                    j++
+//                    continue
+//                }
                 if (j % (resolution) != 0)
                 {
                     srcPixels[i + (j) * size.x] = srcPixels[i + (j - 1) * size.x]
