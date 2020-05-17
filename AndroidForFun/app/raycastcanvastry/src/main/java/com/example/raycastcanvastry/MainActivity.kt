@@ -30,10 +30,13 @@ class MainActivity : AppCompatActivity() {
     val APP_PREFERENCES_COUNTER2 = "counter2"
     val APP_PREFERENCES_COUNTER = "counter"
     val APP_RESOLUTION = "resolution"
+    val APP_CAMERA_HEIGHT = "camera"
+
     var variable_progress: Int = 0
     lateinit var pref: SharedPreferences
     var my_val: Float = 1.0f
     var resolution: Int = 18
+    var cameraHeight: Float = 0.5f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,9 +79,13 @@ class MainActivity : AppCompatActivity() {
             if (pref.contains(APP_PREFERENCES_COUNTER2)) {
                 my_val = (pref.getInt(APP_PREFERENCES_COUNTER2, 0) + 3).toFloat() * 0.20f
             }
+            if (pref.contains(APP_CAMERA_HEIGHT)) {
+                cameraHeight = (pref.getInt(APP_CAMERA_HEIGHT, 0) + 1).toFloat() * 0.10f
+            }
             raycast.pref.inverse = if (variable_progress == 0) 1 else -1
             raycast.pref.resolution = resolution
             raycast.wallHeight = my_val
+            raycast.pref.cameraHeight = cameraHeight
             PlayerMove(raycast, event)
             invalidate()
             return true

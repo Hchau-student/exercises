@@ -1,3 +1,5 @@
+@file:Suppress("JniMissingFunction", "JniMissingFunction")
+
 package com.example.raycastcanvastry
 
 import android.graphics.Bitmap
@@ -118,14 +120,18 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
         lineHeight = ((raycast.bm_size.y / perpWallDist)).toInt()
         var diff: Int = (lineHeight * raycast.wallHeight - lineHeight).toInt()
 
-            drawStart = -lineHeight / 2 - diff + raycast.bm_size.y / 2
+//        if (raycast.wallHeight < 1)
+//            drawStart = -lineHeight / 2 - diff + raycast.bm_size.y / 2
+//        else
+            drawStart = (-lineHeight * (1.0f - raycast.pref.cameraHeight)).toInt() - diff + raycast.bm_size.y / 2
 
-        if (drawStart < 0) drawStart = 0
-
-        drawEnd = lineHeight / 2  + raycast.bm_size.y / 2
+        drawEnd = (lineHeight * (raycast.pref.cameraHeight)).toInt() + raycast.bm_size.y / 2
         if (drawEnd >= raycast.bm_size.y) drawEnd = raycast.bm_size.y - 1
         //calculate value of wallX
          //where exactly the wall was hit
+//        if (raycast.wallHeight < 0)
+//            lineHeight -= diff
+//        else
         wallX = if (side == 0) PosY + perpWallDist * rayDirY
         else PosX + perpWallDist * rayDirX
         wallX -= floor1(wallX)
@@ -140,20 +146,31 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
 
         //draw the pixels of the stripe as a vertical line
         textYY = 0 //find begin
-        if (-lineHeight / 2 - diff + raycast.bm_size.y / 2 < 0)
-            textYY = (-lineHeight / 2 - diff + raycast.bm_size.y / 2) * -1
-
+        if (drawStart < 0)
+            textYY = (drawStart) * -1
+        if (drawStart < 0) drawStart = 0
         lineHeight += diff
+//        while (textYY < 0)
+//            textYY++
         var j = 0
         while (j < size.y) {
             while (((j >= drawEnd)) and (j < size.y)) {
+                if (raycast.pref.cameraHeight != 0.5f)
+                {
+                    j++
+                    continue
+                }
                 if (j % (resolution) != 0)
                 {
                     srcPixels[i + (j) * size.x] = srcPixels[i + (j - 1) * size.x]
+//                    if (srcPixels[i + (size.y - j) * size.x] == 0)
+//                        srcPixels[i + (size.y - j) * size.x] = srcPixels[i + (j - 1) * size.x]
                     var k: Int = 1
                     while ((i + k < size.x) and (k < resolution)) {
                         if ((i + k < size.x) and (j < size.y)) {
                             srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
+//                            if (srcPixels[i + k + (size.y - j) * size.x] == 0)
+//                                srcPixels[i + k + (size.y - j) * size.x] = srcPixels[i + j * size.x]
                         }
                         k++
                     }
@@ -161,6 +178,7 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
                     continue
                 }
                 rowDistance = (posZ / (j - posZ))
+//                rowDistance = (posZ / (j - posZ))
                 floorX = ((PosX + rowDistance * rayDirX0) + (rowDistance * (rayDirX1 - rayDirX0) / size.x) * i) % 1
                 floorY = ((PosY + rowDistance * rayDirY0) + (rowDistance * (rayDirY1 - rayDirY0) / size.x) * i) % 1
                 tx = (((size.x * (floorX)).toInt() % (size.x - 1))).toInt()
@@ -170,10 +188,14 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
                 if ((ty < size.y) and (tx < size.x) and (ty > 0) and (tx > 0)) {
                     color = texture[size.x * ty + tx]
                     srcPixels[i + j * size.x] = color
+//                    if (srcPixels[i + (size.y - j) * size.x] == 0)
+//                    srcPixels[i + (size.y - j) * size.x] = color
                     var k: Int = 1
                     while ((i + k < size.x) and (k < resolution)) {
                         if ((i + k < size.x) and (j < size.y)) {
                             srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
+//                            if (srcPixels[i + k + (size.y - j) * size.x] == 0)
+//                            srcPixels[i + k + (size.y - j) * size.x] = srcPixels[i + j * size.x]
                         }
                         k++
                     }
@@ -181,6 +203,11 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
                 j++
             }
             while (((j <= drawStart))) {
+                if (raycast.pref.cameraHeight != 0.5f)
+                {
+                    j++
+                    continue
+                }
                 if (j % (resolution) != 0)
                 {
                     srcPixels[i + (j) * size.x] = srcPixels[i + (j - 1) * size.x]
@@ -197,6 +224,7 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
                     continue
                 }
                 rowDistance = (posZC / (size.y - j - 1 - posZ))
+//                rowDistance = (posZ / (j - posZ))
                 floorX = ((PosX + rowDistance * rayDirX0) + (rowDistance * (rayDirX1 - rayDirX0) / size.x) * i) % 1
                 floorY = ((PosY + rowDistance * rayDirY0) + (rowDistance * (rayDirY1 - rayDirY0) / size.x) * i) % 1
                 tx = (((size.x * (floorX)).toInt() % (size.x - 1))).toInt()
@@ -206,10 +234,14 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
                 if ((ty < size.y) and (tx < size.x) and (ty > 0) and (tx > 0)) {
                     color = texture[size.x * ty + tx]
                     srcPixels[i + j * size.x] = color
+//                    if (srcPixels[i + (size.y - j) * size.x] == 0)
+//                        srcPixels[i + (size.y - j) * size.x] = color
                     var k: Int = 1
                     while ((i + k < size.x) and (k < resolution)) {
                         if ((i + k < size.x) and (j < size.y)) {
                             srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
+//                            if (srcPixels[i + k + (size.y - j) * size.x] == 0)
+//                                srcPixels[i + k + (size.y - j) * size.x] = srcPixels[i + j * size.x]
                         }
                         k++
                     }

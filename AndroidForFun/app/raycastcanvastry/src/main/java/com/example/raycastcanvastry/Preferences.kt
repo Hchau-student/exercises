@@ -14,6 +14,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.preferences_control_game.*
 
 
 class Preferences : AppCompatActivity() {
@@ -22,10 +23,12 @@ class Preferences : AppCompatActivity() {
     val APP_PREFERENCES_COUNTER = "counter"
     val APP_PREFERENCES_COUNTER2 = "counter2"
     val APP_RESOLUTION = "resolution"
+    val APP_CAMERA_HEIGHT = "camera"
     lateinit var pref: SharedPreferences
     var variable_progress: Int = 0
     var variable_progress2: Int = 0
     var resolution_progress: Int = 17
+    var cameraHeightProgress: Int = 5
 
     @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +45,7 @@ class Preferences : AppCompatActivity() {
         editor.putInt(APP_PREFERENCES_COUNTER, variable_progress)
         editor.putInt(APP_PREFERENCES_COUNTER2, variable_progress2)
         editor.putInt(APP_RESOLUTION, resolution_progress)
+        editor.putInt(APP_CAMERA_HEIGHT, cameraHeightProgress)
         editor.apply()
     }
     override fun onResume() {
@@ -55,6 +59,9 @@ class Preferences : AppCompatActivity() {
         }
         if (pref.contains(APP_RESOLUTION)) {
             resolution_progress = pref.getInt(APP_RESOLUTION, 0)
+        }
+        if (pref.contains(APP_CAMERA_HEIGHT)) {
+            cameraHeightProgress = pref.getInt(APP_CAMERA_HEIGHT, 0)
         }
     }
 
@@ -78,20 +85,31 @@ class Preferences : AppCompatActivity() {
         setContentView(R.layout.preferences_control_game)
         var background: View = findViewById(R.id.background)
         background.setBackgroundResource(R.drawable.gradient)
+
         var inverse: SeekBar = findViewById(R.id.inverse)
-        var inverse2: SeekBar = findViewById(R.id.seekBar2)
+        var wallHeight: SeekBar = findViewById(R.id.seekBar2)
         var resolution: SeekBar = findViewById(R.id.resolutionBar)
         var resolutionText: TextView = findViewById(R.id.resolutionText)
-        inverse.setProgress(variable_progress)
-        inverse2.setProgress(variable_progress2)
-        resolution.setProgress(resolution_progress)
-        resolutionText.setText("image resolution = " + resolution_progress)
+        var inverseText: TextView = findViewById(R.id.textView)
+        var wallsHeightText: TextView = findViewById(R.id.textView2)
+        var cameraH: SeekBar = findViewById(R.id.cameraHeightBar)
+        var cameraHText: TextView = findViewById(R.id.cameraHeightText)
 
+        inverse.setProgress(variable_progress)
+        wallHeight.setProgress(variable_progress2)
+        resolution.setProgress(resolution_progress)
+        cameraH.setProgress(cameraHeightProgress)
+
+        resolutionText.setText("image resolution = " + resolution_progress)
+        inverseText.setText("inverse rotation " + if (variable_progress == 0) "off" else "on")
+        wallsHeightText.setText("Walls height = " + "%.1f".format((variable_progress2 + 3) * 0.20f))
+        cameraHText.setText("camera height = " + "%.1f".format((cameraHeightProgress + 1) * 0.10f))
 
         inverse.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
                 var str_progress = getString(R.string.inverse)
                 variable_progress = i
+                inverseText.setText("inverse rotation " + if (variable_progress == 0) "off" else "on")
                 var sharedPref = getSharedPreferences(str_progress, Context.MODE_PRIVATE)
                 val editor: Editor = sharedPref.edit()
                 editor.commit()
@@ -103,13 +121,15 @@ class Preferences : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar) {
             }
         })
-        inverse2.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+        wallHeight.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
                 var str_progress = getString(R.string.inverse)
                 variable_progress2 = i
                 var sharedPref = getSharedPreferences(str_progress, Context.MODE_PRIVATE)
                 val editor: Editor = sharedPref.edit()
-//                editor.putInt(getString(R.string.inverse), variable_progress2)
+                var print = ((variable_progress2 + 3) * 0.20f)
+//                if ((print >= 1.7f) and (print <= 1.9f)) print = 1.8f
+                wallsHeightText.setText("Walls height = " + "%.1f".format(print))
                 editor.commit()
             }
 
@@ -125,7 +145,6 @@ class Preferences : AppCompatActivity() {
             resolution_progress = i
             var sharedPref = getSharedPreferences(str_progress, Context.MODE_PRIVATE)
             val editor: Editor = sharedPref.edit()
-//            editor.putInt(getString(R.string.inverse), resolution_progress)
             editor.commit()
             resolutionText.setText("image resolution = " + resolution_progress)
         }
@@ -137,6 +156,23 @@ class Preferences : AppCompatActivity() {
         }
     })
 
+        cameraH.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+                var str_progress = getString(R.string.inverse)
+                cameraHeightProgress = i
+                var sharedPref = getSharedPreferences(str_progress, Context.MODE_PRIVATE)
+                val editor: Editor = sharedPref.edit()
+                val print = (cameraHeightProgress + 1) * 0.10f
+                cameraHText.setText("camera height = " + "%.1f".format(print))
+                editor.commit()
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+            }
+        })
 }
 
 
