@@ -1,5 +1,3 @@
-@file:Suppress("JniMissingFunction", "JniMissingFunction")
-
 package com.example.raycastcanvastry
 
 import android.graphics.Bitmap
@@ -43,12 +41,10 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
     var texX: Int
     var textYY: Int
     var text: IntArray
-//    external fun stringFromJNI(): String
-//
-//    var str: String = stringFromJNI()
 
-//    var p: Int
     var posZ: Float = 0.5f * size.y
+    var posZC: Float = (0.5f + raycast.wallHeight - 1.0f) * size.y//меняется положение камеры по центру, алло
+
     var rowDistance: Float
     var floorX: Float
     var floorY: Float
@@ -97,7 +93,6 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
 
         while (hit == 0)
         {
-            //jump to next map square, OR in x-direction, OR in y-direction
             if(sideDistX < sideDistY)
             {
                 sideDistX += deltaDistX
@@ -120,16 +115,14 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
         } else  {
             perpWallDist = (mapY - PosY + (1 - stepY) / 2) / rayDirY
         }
-        //Calculate height of line to draw on screen
-        //Calculate height of line to draw on screen
-        lineHeight = ((raycast.bm_size.y / perpWallDist) * raycast.wallHeight).toInt()
+        lineHeight = ((raycast.bm_size.y / perpWallDist)).toInt()
+        var diff: Int = (lineHeight * raycast.wallHeight - lineHeight).toInt()
 
-        //calculate lowest and highest pixel to fill in current stripe
+            drawStart = -lineHeight / 2 - diff + raycast.bm_size.y / 2
 
-        //calculate lowest and highest pixel to fill in current stripe
-        drawStart = -lineHeight / 2 + raycast.bm_size.y / 2
         if (drawStart < 0) drawStart = 0
-            drawEnd = lineHeight / 2 + raycast.bm_size.y / 2
+
+        drawEnd = lineHeight / 2  + raycast.bm_size.y / 2
         if (drawEnd >= raycast.bm_size.y) drawEnd = raycast.bm_size.y - 1
         //calculate value of wallX
          //where exactly the wall was hit
@@ -147,28 +140,27 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
 
         //draw the pixels of the stripe as a vertical line
         textYY = 0 //find begin
-        if (lineHeight > size.y)
-            textYY = (lineHeight - size.y) / 2
+        if (-lineHeight / 2 - diff + raycast.bm_size.y / 2 < 0)
+            textYY = (-lineHeight / 2 - diff + raycast.bm_size.y / 2) * -1
 
+        lineHeight += diff
         var j = 0
         while (j < size.y) {
             while (((j >= drawEnd)) and (j < size.y)) {
                 if (j % (resolution) != 0)
                 {
                     srcPixels[i + (j) * size.x] = srcPixels[i + (j - 1) * size.x]
-                    srcPixels[i + (size.y - j) * size.x] = srcPixels[i + (j - 1) * size.x]
                     var k: Int = 1
                     while ((i + k < size.x) and (k < resolution)) {
                         if ((i + k < size.x) and (j < size.y)) {
                             srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
-                            srcPixels[i + k + (size.y - j) * size.x] = srcPixels[i + j * size.x]
                         }
                         k++
                     }
                     j++
                     continue
                 }
-                rowDistance = (posZ / (j - posZ))  * raycast.wallHeight
+                rowDistance = (posZ / (j - posZ))
                 floorX = ((PosX + rowDistance * rayDirX0) + (rowDistance * (rayDirX1 - rayDirX0) / size.x) * i) % 1
                 floorY = ((PosY + rowDistance * rayDirY0) + (rowDistance * (rayDirY1 - rayDirY0) / size.x) * i) % 1
                 tx = (((size.x * (floorX)).toInt() % (size.x - 1))).toInt()
@@ -178,12 +170,46 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
                 if ((ty < size.y) and (tx < size.x) and (ty > 0) and (tx > 0)) {
                     color = texture[size.x * ty + tx]
                     srcPixels[i + j * size.x] = color
-                    srcPixels[i + (size.y - j) * size.x] = color
                     var k: Int = 1
                     while ((i + k < size.x) and (k < resolution)) {
                         if ((i + k < size.x) and (j < size.y)) {
                             srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
-                            srcPixels[i + k + (size.y - j) * size.x] = srcPixels[i + j * size.x]
+                        }
+                        k++
+                    }
+                }
+                j++
+            }
+            while (((j <= drawStart))) {
+                if (j % (resolution) != 0)
+                {
+                    srcPixels[i + (j) * size.x] = srcPixels[i + (j - 1) * size.x]
+                    if (srcPixels[i + (size.y - j) * size.x] == 0)
+                        srcPixels[i + (size.y - j) * size.x] = srcPixels[i + (j - 1) * size.x]
+                    var k: Int = 1
+                    while ((i + k < size.x) and (k < resolution)) {
+                        if ((i + k < size.x) and (j < size.y)) {
+                            srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
+                        }
+                        k++
+                    }
+                    j++
+                    continue
+                }
+                rowDistance = (posZC / (size.y - j - 1 - posZ))
+                floorX = ((PosX + rowDistance * rayDirX0) + (rowDistance * (rayDirX1 - rayDirX0) / size.x) * i) % 1
+                floorY = ((PosY + rowDistance * rayDirY0) + (rowDistance * (rayDirY1 - rayDirY0) / size.x) * i) % 1
+                tx = (((size.x * (floorX)).toInt() % (size.x - 1))).toInt()
+                ty = (((size.y * (floorY))).toInt() % (size.y - 1)).toInt()
+                if (tx < 0) tx * -1
+                if (ty < 0) ty * -1
+                if ((ty < size.y) and (tx < size.x) and (ty > 0) and (tx > 0)) {
+                    color = texture[size.x * ty + tx]
+                    srcPixels[i + j * size.x] = color
+                    var k: Int = 1
+                    while ((i + k < size.x) and (k < resolution)) {
+                        if ((i + k < size.x) and (j < size.y)) {
+                            srcPixels[i + k + j * size.x] = srcPixels[i + j * size.x]
                         }
                         k++
                     }
@@ -210,7 +236,9 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
                         j++
                         continue
                     }
-                srcPixels[i + j * size.x] = text[texX + ((textYY * size.x) / (lineHeight) * raycast.wallH).toInt() * size.x]
+                if ((texX + ((textYY * size.x) / (lineHeight) * raycast.wallH).toInt() * size.x > 0)
+                    and (texX + ((textYY * size.x) / (lineHeight) * raycast.wallH).toInt() * size.x < size.y * size.x))
+                    srcPixels[i + j * size.x] = text[texX + ((textYY * size.x) / (lineHeight) * raycast.wallH).toInt() * size.x]
                 textYY++
             }
             var k: Int = 1
@@ -226,5 +254,4 @@ fun r_DrawWalls(size: Point, raycast: r_Raycast, start: Int, end: Int) {
     }
     raycast.bm.setPixels(srcPixels, 0, size.x,
         0, 0, size.x, size.y)
-//    return (bitmap)
 }

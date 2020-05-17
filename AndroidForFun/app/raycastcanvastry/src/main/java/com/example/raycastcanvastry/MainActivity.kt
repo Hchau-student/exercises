@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
                 resolution = pref.getInt(APP_RESOLUTION, 0)
             }
             if (pref.contains(APP_PREFERENCES_COUNTER2)) {
-                my_val = (pref.getInt(APP_PREFERENCES_COUNTER2, 0) + 1).toFloat() * 0.25f
+                my_val = (pref.getInt(APP_PREFERENCES_COUNTER2, 0) + 3).toFloat() * 0.20f
             }
             raycast.pref.inverse = if (variable_progress == 0) 1 else -1
             raycast.pref.resolution = resolution
