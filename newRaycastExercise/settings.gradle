@@ -1,2 +1,4 @@
 rootProject.name='OhMyDoom'
-include ':app'
+include ':app', ':doomlibrary'
+include ':mapbuildtry'
+include ':doomlibrary'

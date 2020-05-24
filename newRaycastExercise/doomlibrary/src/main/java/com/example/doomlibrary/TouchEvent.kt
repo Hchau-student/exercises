@@ -1,4 +1,4 @@
-package com.example.ohmydoom
+package com.example.doomlibrary
 
 import android.view.MotionEvent
 

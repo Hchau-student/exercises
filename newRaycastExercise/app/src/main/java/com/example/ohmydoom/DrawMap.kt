@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Point
-import androidx.core.graphics.PathSegment
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -117,14 +116,6 @@ fun DrawLastSegment(size: Point, map: Canvas, src: objDrawMap) {
             map.drawLine(50 + x1, 50 + y1b + y_plas, 50 + x2, 50 + y2b + y_plas, paint)
             map.drawLine(50 + x1, 50 + y1a + y_plas, 50 + x1, 50 + y1b + y_plas, paint)
             map.drawLine(50 + x2, 50 + y2a + y_plas, 50 + x2, 50 + y2b + y_plas, paint)
-//            LINE(50+x1,50+y1a)-(50+x2,50+y2a),14 'top (1-2 b)
-//            LINE(50+x1,50+y1b)-(50+x2,50+y2b),14 'bottom (1-2 b)
-//            LINE(50+x1,50+y1a)-(50+x1,50+y1b),6 'left (1)
-//            LINE(50+x2,50+y2a)-(50+x2,50+y2b),6 'right (2)
-//            END IF
-
-//                    x1 = -tx1 * 16 / tz1 : y1a = -50 / tz1 : y1b = 50 / tz1
-//            x2 = -tx2 * 16 / tz2 : y2a = -50 / tz2 : y2b = 50 / tz2
         }
     }
 }

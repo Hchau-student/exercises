@@ -12,3 +12,12 @@ class objDrawMap {
         this.player = Player(player[0], player[1], player[2])
     }
 }
+
+class vertex {
+    var x: Float
+    var y: Float
+    constructor(x: Float, y: Float) {
+        this.x = x
+        this.y = y
+    }
+}

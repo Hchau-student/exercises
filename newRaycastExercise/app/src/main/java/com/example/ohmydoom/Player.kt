@@ -1,6 +1,7 @@
 package com.example.ohmydoom
 
 import android.graphics.Point
+import android.view.MotionEvent
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -21,11 +22,16 @@ class Player {
     }
 }
 
-class vertex {
-    var x: Float
-    var y: Float
-    constructor(x: Float, y: Float) {
-        this.x = x
-        this.y = y
+fun PlayerMove(player: Player, TouchScreen: TapScreen, ev: MotionEvent) {
+    var TouchCoord: Float = 0.0f
+    var shortTouch: Boolean = IsShortTouch(ev, TouchScreen)
+    if (shortTouch == true) {
+        player.go()
+    } else {
+        TouchCoord = LongTapEvent(ev, TouchScreen).toFloat()
+        if (TouchCoord != 0.0f)
+            ;
+        player.rotate(TouchCoord)
     }
+    EndTapEvent(ev, TouchScreen)
 }
