@@ -1,15 +1,25 @@
 package com.example.mapbuildtry
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.*
+
 
 class objButton {
     var rect: Rect
     var bitmap: Bitmap
     var borders: borders
     var on: Boolean = false
+    var filter: ColorFilter
+
     constructor(start: Point, end: Point, context: Context, resource: Int) {
+        val cmData = floatArrayOf(
+            1f, 0f, 0f, 0f, 0f,
+            0f, 1f, 0f, 0f, 0f,
+            0f, 0f, 1f, 0f, 0f,
+            0f, 0f, 0f, 0.5f, 0f
+        )
+        var cm = ColorMatrix(cmData)
+        this.filter = ColorMatrixColorFilter(cm)
         this.rect = Rect(start.x, start.y,
             end.x, end.y)
         this.borders = borders(
@@ -19,13 +29,9 @@ class objButton {
         this.bitmap = BitmapFactory.decodeResource(context?.getResources(), resource)
     }
     fun isButtonTaped(x: Float, y: Float): Boolean {
-        if (x < this.borders.begin.x)
+        if ((x < this.borders.begin.x) or (x > this.borders.end.x))
             return false
-        if (x > this.borders.end.x)
-            return false
-        if (y < this.borders.begin.y)
-            return false
-        if (y > this.borders.end.y)
+        if ((y < this.borders.begin.y) or (y > this.borders.end.y))
             return false
         return true
     }
@@ -37,10 +43,10 @@ class buttonData {
     //add else buttons here; 3D?
     //    var draw: objButton
     constructor(context: Context) {
-        this.drag = objButton(Point(50, 50), Point(150, 150),
+        this.drag = objButton(Point(50, 50), Point(200, 200),
             context, R.drawable.dancing)
         this.drag.on = false
-        this.draw = objButton(Point(50, 200), Point(150, 300),
+        this.draw = objButton(Point(50, 230), Point(200, 380),
             context, R.drawable.dancing)
         this.draw.on = true
         //add else buttons initialisation here
@@ -69,7 +75,10 @@ class buttonData {
     }
     fun draw(canvas: Canvas) {
         var paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        if (this.drag.on == false) paint.setColorFilter(this.drag.filter)
         canvas.drawBitmap(this.drag.bitmap!!, null, this.drag.rect!!, paint)
+        paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        if (this.draw.on == false) paint.setColorFilter(this.draw.filter)
         canvas.drawBitmap(this.draw.bitmap!!, null, this.draw.rect!!, paint)
         //and else buttons
     }

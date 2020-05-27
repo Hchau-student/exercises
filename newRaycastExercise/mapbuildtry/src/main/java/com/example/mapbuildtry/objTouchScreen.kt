@@ -5,77 +5,89 @@ import kotlin.math.abs
 
 class TapScreen {
     var FirstTouch: Touch =
-        Touch(0, false, FlVec2(0.0f, 0.0f))
+        Touch(-1, false, FlVec2(0.0f, 0.0f))
     var SecondTouch: Touch =
-        Touch(0, false, FlVec2(0.0f, 0.0f))
+        Touch(-1, false, FlVec2(0.0f, 0.0f))
 
     class FlVec2 {
-        var x: Float = 0.0f
-        var y: Float = 0.0f
+        var x: Float
+        var y: Float
 
-        constructor(_x: Float, _y: Float) {
-            this.x = _x
-            this.y = _y
+        constructor(x: Float, y: Float) {
+            this.x = x
+            this.y = y
         }
     }
 
     class Touch {
-        var pointer: Int = 0
-        var hold: Boolean = false
-        var Begin: FlVec2 = FlVec2(0.0f, 0.0f)
-        var End: FlVec2 = FlVec2(0.0f, 0.0f)
-        var isMoving: Boolean = false
+        var pointer: Int
+        var hold: Boolean
+        var Begin: FlVec2
+        var End: FlVec2
+        var isMoving: Boolean
+        var isLeft: Boolean
+        var isTop: Boolean
 
-        constructor(_pointer: Int, _hold: Boolean, _Begin: FlVec2) {
-            this.pointer = _pointer
-            this.hold = _hold
-            this.Begin = _Begin
-            this.End = _Begin
+        constructor(pointer: Int, hold: Boolean, Begin: FlVec2) {
+            this.pointer = pointer
+            this.isLeft = false
+            this.isTop = false
+            this.hold = hold
+            this.Begin = Begin
+            this.End = Begin
+            this.isMoving = false
         }
     }
 
-    fun tupDown(ev: MotionEvent) {
-        if (FirstTouch.hold == false) {
-            FirstTouch = Touch(ev.actionIndex, true, FlVec2(ev.x, ev.y))
-        } else if (SecondTouch.hold == false) {
-            SecondTouch = Touch(ev.actionIndex, true, FlVec2(ev.x, ev.y))
-        }
-    }
-
-    fun renew(ev: MotionEvent): Double {
-        var res: Double = 0.0
-        if (ev.actionIndex == FirstTouch.pointer) {
-            if (FirstTouch.isMoving == false) {
-                if ((abs(FirstTouch.Begin.x - ev.x) <= 30.0) and (abs(FirstTouch.Begin.y - ev.y) <= 30.0))
-                    return (res)
+    fun tupDown(ev: MotionEvent, pointer: Int) {
+            if ((FirstTouch.pointer == -1)) {
+                FirstTouch = Touch(ev.getPointerId(pointer), true, FlVec2(ev.getX(pointer), ev.getY(pointer)))
+            } else if ((SecondTouch.pointer == -1) and (FirstTouch.pointer != ev.getPointerId(pointer))) {
+                SecondTouch = Touch(ev.getPointerId(pointer), true, FlVec2(ev.getX(pointer), ev.getY(pointer)))
+                if (FirstTouch.Begin.x < SecondTouch.Begin.x) {
+                    FirstTouch.isLeft = true; SecondTouch.isLeft = false
+                } else {
+                    FirstTouch.isLeft = false; SecondTouch.isLeft = true
+                }
+                if (FirstTouch.Begin.y < SecondTouch.Begin.y) {
+                    FirstTouch.isTop = true; SecondTouch.isTop = false
+                } else {
+                    FirstTouch.isTop = false; SecondTouch.isTop = true
+                }
             }
-            FirstTouch.End = FlVec2(ev.x, ev.y)
-            FirstTouch.isMoving = true
-            res = (FirstTouch.Begin.x - FirstTouch.End.x).toDouble()
-            FirstTouch.Begin = FlVec2(ev.x, ev.y)
-            return (res)
-        } else if (ev.actionIndex == SecondTouch.pointer) {
-            if (SecondTouch.isMoving == false) {
-                if ((abs(SecondTouch.Begin.x - ev.x) <= 30.0) and (abs(SecondTouch.Begin.y - ev.y) <= 30.0))
-                    return (res)
-            }
-            SecondTouch.End = FlVec2(ev.x, ev.y)
-            SecondTouch.isMoving = true
-            res = (SecondTouch.Begin.x - SecondTouch.End.x).toDouble()
-            SecondTouch.Begin =  FlVec2(ev.x, ev.y)
-            return res
-        }
-        return (res)
     }
 
-    fun endTouch(ev: MotionEvent) {
-        if (ev.actionIndex == SecondTouch.pointer) {
-            SecondTouch.hold = false
-            SecondTouch.isMoving = false
+    fun renew_touch(ev: MotionEvent, pointer: Int, touch: Touch): vertex {
+        var res = vertex(0.0f, 0.0f)
+        var ev_coord = vertex(ev.getX(ev.findPointerIndex(pointer)),
+        ev.getY(ev.findPointerIndex(pointer)))
+        if (touch.isMoving == false) {
+           if ((abs(touch.Begin.x - ev_coord.x) <= 30.0)
+                and (abs(touch.Begin.y - ev_coord.y) <= 30.0))
+                return (res)
         }
-        if (ev.actionIndex == FirstTouch.pointer) {
-            FirstTouch.hold = false
-            FirstTouch.isMoving = false
+        touch.End = FlVec2(ev_coord.x, ev_coord.y)
+        touch.isMoving = true
+        res.x = (touch.Begin.x - touch.End.x)
+        res.y = (touch.Begin.y - touch.End.y)
+        touch.Begin = FlVec2(ev_coord.x, ev_coord.y)
+        return res
+    }
+
+    fun renew(ev: MotionEvent, pointer: Int): vertex {
+        if ((pointer == SecondTouch.pointer) and (SecondTouch.hold == true))
+            return renew_touch(ev, pointer, SecondTouch)
+        if ((pointer == FirstTouch.pointer) and (FirstTouch.hold == true))
+            return renew_touch(ev, pointer, FirstTouch)
+        return (vertex(0.0f, 0.0f))
+    }
+
+    fun endTouch(pointerID: Int) {
+        if (pointerID == SecondTouch.pointer) {
+            SecondTouch = Touch(-1, false, FlVec2(0.0f, 0.0f))
+        }
+        if (pointerID == FirstTouch.pointer) {
+            FirstTouch = Touch(-1, false, FlVec2(0.0f, 0.0f))
         }
     }
 
@@ -101,19 +113,6 @@ class TapScreen {
             && SecondTouch.hold == true) {
             return (vertex(SecondTouch.Begin.x, SecondTouch.Begin.y))
         }
-        return (vertex(150.0f, 150.0f))
-    }
-    fun getLongTouch(): Float {
-        if (FirstTouch.hold == true && FirstTouch.isMoving == true) {
-            var res = ((FirstTouch.Begin.x - FirstTouch.End.x +
-                    FirstTouch.Begin.y - FirstTouch.End.y))
-            return (res)
-        }
-        if (SecondTouch.hold == true && SecondTouch.isMoving == true) {
-            var res = ((SecondTouch.Begin.x - SecondTouch.End.x +
-                    SecondTouch.Begin.y - SecondTouch.End.y))
-            return (res)
-        }
-        return (0.0f)
+        return (vertex(0.0f, 0.0f))
     }
 }

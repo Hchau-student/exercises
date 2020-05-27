@@ -9,11 +9,11 @@ import android.view.View
 
 fun DrawCanvas(canvas: Canvas, data: objData, size: Point/*, button: objButton, drawMap: objDrawMap*/) {
     var paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    var rect = Rect(-2000, 0, size.x, size.y)//какой кусок карты попадёт на экран
+//    var rect = Rect(-2000, 0, size.x, size.y)//какой кусок карты попадёт на экран
     //нарисовать все кнопки
     canvas.translate(0F, 0F)
     canvas.save()
-    canvas.drawBitmap(data.mapView.bm!!, null, rect!!, paint)
+    canvas.drawBitmap(data.mapView.bm!!, null, data.mapView.rect!!, paint)
     data.buttons.draw(canvas)
     canvas.restore()
 }
