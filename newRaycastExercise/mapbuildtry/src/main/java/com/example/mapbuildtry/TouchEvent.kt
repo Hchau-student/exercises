@@ -66,3 +66,20 @@ fun EndTapEvent(event: MotionEvent, TouchScreen: TapScreen): Float {
     }
     return (res)
 }
+
+fun DrawPoint(event: MotionEvent, data: objData)
+{
+    var play = objPlay()
+    for (pointer in 0..event.pointerCount - 1) {
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                data.touch.tupDown(event, pointer)
+                play.DrawPoint(data, event.getPointerId(pointer))
+            }
+            MotionEvent.ACTION_POINTER_DOWN -> { //новое нажатие
+                data.touch.tupDown(event, pointer)
+                play.DrawPoint(data, event.getPointerId(pointer))
+            }
+        }
+    }
+}

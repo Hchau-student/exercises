@@ -1,30 +1,51 @@
 package com.example.mapbuildtry
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Point
-import android.graphics.Rect
+import android.graphics.*
 
 class objMapView {
     var bm: Bitmap
+    var background: Bitmap
     var rect: Rect
-    var mapSize: borders
-    var backSize: borders
-    var beginPos: vertex
-    var scale: Int
-    var isMoving: Boolean
+    var sectors: objSectors
+    var context: Context
     constructor(size: Point, context: Context) {
-        this.rect = Rect(-size.x / 2, -size.y / 2,
-            size.x + size.x / 2, size.y + size.y / 2)
-        var bm: Bitmap = BitmapFactory.decodeResource(context?.getResources(), R.drawable.anonim)
-        this.bm = Bitmap.createScaledBitmap(bm, size.x, size.y, false)
-        this.mapSize = borders(vertex(0.0f, 0.0f), vertex(size.x.toFloat(), size.y.toFloat()))
-        this.backSize = borders(vertex(-size.x.toFloat() / 2, -size.y.toFloat() / 2),
-            vertex(size.x.toFloat() + size.x.toFloat() / 2, size.y.toFloat() + size.y.toFloat() / 2))
-        this.beginPos = vertex(0.0f, 0.0f)
-        scale = 100
-        isMoving = false
+        this.context = context
+        this.rect = Rect(-size.x * 2, -size.y * 2,
+            size.x + size.x * 2, size.y + size.y * 2)
+        this.background = BitmapFactory.decodeResource(context?.getResources(), R.drawable.anonim)
+        this.bm = Bitmap.createScaledBitmap(this.background, size.x, size.y, false)
+        sectors = objSectors(this.bm, size)
+        draw_lines(size)
+    }
+
+    fun draw_lines(size: Point)
+    {
+        var src = IntArray((size.x * size.y))
+        var i = 5
+        for (k in 0..(size.x - 1))
+        {
+            for (l in 0..(size.y - 1)) {
+                if ((l % i <= 0 || k % i <= 0))
+                    src[k + l * size.x] = 0x30003033
+            }
+        }
+        this.bm.setPixels(src, 0, size.x, 0, 0,
+            size.x, size.y)
+    }
+    fun addPoint(point: vertex)
+    {
+        //1) пройтись по всем секторам, найти среди них первый
+        //isFinished == false
+        //
+//        this.points[this.points.size - 1] +=
+    }
+    fun Draw(canvas: Canvas, size: Point) {
+        var paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        var rect = Rect(0, 0, size.x, size.y)
+        canvas.drawBitmap(this.background!!, null, rect!!, paint)
+        canvas.drawBitmap(this.bm!!, null, this.rect!!, paint)
+        canvas.drawBitmap(this.sectors.bm!!, null, this.rect!!, paint)
     }
 }
 
