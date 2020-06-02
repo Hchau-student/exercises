@@ -47,13 +47,15 @@ class objPlay {
             )
         }
     }
-    fun DrawLine(data: objData, shiftB: borders) {
+    fun DrawLine(data: objData, shiftB: borders, isUp: Boolean) {
         if ((data.touch.SecondTouch.isMoving == true) and
             (data.touch.FirstTouch.pointer != data.touch.SecondTouch.pointer))
             return
-
+        DrawPoint(data, if (data.touch.SecondTouch.hold)
+            data.touch.SecondTouch.pointer else data.touch.FirstTouch.pointer, isUp)
     }
-    fun DrawPoint(data: objData, pointer: Int) {
+
+    fun DrawPoint(data: objData, pointer: Int, isUp: Boolean) {
         if (data.buttons.draw.on == false)
             return
         var vertex = if (pointer == data.touch.FirstTouch.pointer) data.touch.FirstTouch.Begin
@@ -68,8 +70,6 @@ class objPlay {
         if (where.x < 0) where.x = 0.0f; if (where.y < 0) where.y = 0.0f
         if (where.x >= data.size.x) where.x = data.size.x.toFloat() - 1
         if (where.y >= data.size.y) where.y = data.size.y.toFloat() - 1
-        data.mapView.sectors.bm.setPixel(where.x.toInt(), where.y.toInt(), 0xffffff00.toInt())
-//        data.mapView.points[data.mapView.points.size - 1] +=
-        data.mapView.addPoint(where)
+        data.mapView.addPoint(where, isUp)
     }
 }

@@ -17,11 +17,12 @@ import android.view.MotionEvent
         }
     }
 
-fun longTouch(data: objData, ev: MotionEvent, shiftB: borders) {
+fun longTouch(data: objData, ev: MotionEvent, shiftB: borders, isUp: Boolean) {
     var play = objPlay()
     if (data.buttons.drag.on == true) {
         play.DragMap(data, shiftB)
     } else {
+        play.DrawLine(data, shiftB, isUp)
         ;//play.DrawLine(data, shiftB)
     }
 }
@@ -48,9 +49,11 @@ fun ManageTouch(data: objData, context: Context, ev: MotionEvent) {
         }
     }
     else {
-        DrawPoint(ev, data)
+//        DrawPoint(ev, data)
         TouchVertex = LongTapEventVertex(ev, data.touch)
-        longTouch(data, ev, TouchVertex)
+        longTouch(data, ev, TouchVertex, true)
+        if (EndTapEvent(ev, data.touch) != -1.0f)
+            longTouch(data, ev, TouchVertex, false)
     }
     EndTapEvent(ev, data.touch)
 }

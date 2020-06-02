@@ -17,6 +17,7 @@ fun LongTapEventVertex(event: MotionEvent, TouchScreen: TapScreen): borders {
                     ret.begin = TouchScreen.renew(event, event.getPointerId(pointer))
                 if (event.getPointerId(pointer) == TouchScreen.SecondTouch.pointer)
                     ret.end = TouchScreen.renew(event, event.getPointerId(pointer))
+                //
             }
         }
     }
@@ -44,7 +45,7 @@ fun IsShortTouch(event: MotionEvent, TouchScreen: TapScreen): Int {
 }
 
 fun EndTapEvent(event: MotionEvent, TouchScreen: TapScreen): Float {
-    var res: Float = 0.0f
+    var res: Float = -1.0f
     for (pointer in 0..event.pointerCount - 1) {
         when (event.actionMasked) {
             MotionEvent.ACTION_UP -> {
@@ -67,19 +68,19 @@ fun EndTapEvent(event: MotionEvent, TouchScreen: TapScreen): Float {
     return (res)
 }
 
-fun DrawPoint(event: MotionEvent, data: objData)
-{
-    var play = objPlay()
-    for (pointer in 0..event.pointerCount - 1) {
-        when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                data.touch.tupDown(event, pointer)
-                play.DrawPoint(data, event.getPointerId(pointer))
-            }
-            MotionEvent.ACTION_POINTER_DOWN -> { //новое нажатие
-                data.touch.tupDown(event, pointer)
-                play.DrawPoint(data, event.getPointerId(pointer))
-            }
-        }
-    }
-}
+//fun DrawPoint(event: MotionEvent, data: objData)
+//{
+//    var play = objPlay()
+//    for (pointer in 0..event.pointerCount - 1) {
+//        when (event.actionMasked) {
+//            MotionEvent.ACTION_DOWN -> {
+//                data.touch.tupDown(event, pointer)
+//                play.DrawPoint(data, event.getPointerId(pointer))
+//            }
+//            MotionEvent.ACTION_POINTER_DOWN -> { //новое нажатие
+//                data.touch.tupDown(event, pointer)
+//                play.DrawPoint(data, event.getPointerId(pointer))
+//            }
+//        }
+//    }
+//}

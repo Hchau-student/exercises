@@ -33,9 +33,14 @@ class objMapView {
         this.bm.setPixels(src, 0, size.x, 0, 0,
             size.x, size.y)
     }
-    fun addPoint(point: vertex)
+
+    fun addPoint(point: vertex, isUp: Boolean)
     {
-        //1) пройтись по всем секторам, найти среди них первый
+        this.sectors.DrawLine(point, isUp)
+        if (isUp == false)
+            this.sectors.bm.setPixel(point.x.toInt(), point.y.toInt(), 0xffffff00.toInt())
+//        else
+//        1) пройтись по всем секторам, найти среди них первый
         //isFinished == false
         //
 //        this.points[this.points.size - 1] +=
