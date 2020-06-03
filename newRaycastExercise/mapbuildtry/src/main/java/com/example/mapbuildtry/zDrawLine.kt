@@ -64,7 +64,7 @@ class ObjLine (var size: Point, var start: Vertex, private var end: Vertex) {
             return false
         if (!isX && abs(nextPix.y - start.y) <= 5)
             return false
-        if (color == 0xffff00ff.toInt()) {
+        if (color == 0xff50ffff.toInt()) {
             if (pixels[(nextPix.x + nextPix.y * size.x)] == Color.GREEN ||
                 pixels[nextPix.x + 1 + nextPix.y * size.x] == Color.GREEN ||
                 pixels[nextPix.x - 1 + nextPix.y * size.x] == Color.GREEN ||
@@ -102,12 +102,13 @@ class ObjLine (var size: Point, var start: Vertex, private var end: Vertex) {
         if (pixArray[nextPix.x + nextPix.y * size.x] == Color.GREEN) //перед отрисовкой
             //чекнуть, не начинается ли линия на зелёной точке
             isFinishedStart = true
-        if (color == Color.RED || color == 0xffff00ff.toInt())
+        if (color == Color.RED || color == 0xff50ffff.toInt())
             isFinished = bresenham(pixArray, color) //если мы упираемся в зелёную точку, вернётся true -
         // значит, линия упирается в другой блок
         else
             bresenham(pixArray, color)
-        end = Vertex(nextPix.x.toFloat(), nextPix.y.toFloat())
+        if (color != Color.GREEN)
+            end = Vertex(nextPix.x.toFloat(), nextPix.y.toFloat())
         return false
     }
 

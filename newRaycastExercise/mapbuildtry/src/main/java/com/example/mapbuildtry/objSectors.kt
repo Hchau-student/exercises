@@ -7,8 +7,6 @@ import kotlin.math.abs
 
 class ObjSectors(bm: Bitmap, private val size: Point) {
     var bm: Bitmap
-//    private var maze: Array<Maze> = arrayOf(Maze(-1,
-//        vertex(0.0f, 0.0f), vertex(0.0f, 0.0f)))
     private var array: Array<Sector>
     val pixels = IntArray(size.x * size.y)
 
@@ -39,7 +37,7 @@ class ObjSectors(bm: Bitmap, private val size: Point) {
             if (array[i].last().noEnd()) {
                 for (i in 0 until size.x * size.y) {
                     if ((pixels[i] == Color.BLACK) or (pixels[i] == Color.RED)
-                        or (pixels[i] == 0xffff00ff.toInt()))
+                        or (pixels[i] == 0xff50ffff.toInt()))
                         pixels[i] = 0x0
                 }
                 this.bm.setPixels(pixels, 0, size.x, 0, 0,
@@ -51,25 +49,21 @@ class ObjSectors(bm: Bitmap, private val size: Point) {
                 array[i].isFinished = true
                 correctFigure(i)
             }
-            else
+            else if (!array[i].last().noEnd())
                 array[i].points += ObjLine(size,
                     array[i].last().end(), Vertex(-1.0f, -1.0f))
         }
         if (!isUp) {
-            var prev = array[i].last().end()
             array[i].changeLastPoint(point)
-//            if (array[i].points.size > 1 && !array[i].isDrawale())
-//                drawWall(array[i].points.last(), Color.YELLOW)
-//            else
-//                return array[i].changeLastPoint(Vertex(-1.0f, -1.0f))
-            if (!drawWall(array[i].points.last(), 0xffff00ff.toInt()))
+            if (!drawWall(array[i].points.last(), 0xff50ffff.toInt()))
                 array[i].changeLastPoint(Vertex(-1.0f, -1.0f))
         }
     }
 
     private fun correctFigure(i: Int) {
-        var delete = true
+        var delete = !array[i].points[0].isFinishedStart
         var res: Array<ObjLine> = emptyArray()
+        for (i in 0 until size.x * size.y) { pixels[i] = 0x0 }
         for (j in array[i].points.indices) {
             if (array[i].points[j].start == array[i].last().end())
                 delete = false
@@ -78,8 +72,9 @@ class ObjSectors(bm: Bitmap, private val size: Point) {
                 res += array[i].points[j]
         }
         array[i].points = res
-        for (j in array[i].points.indices) {
-            array[i].points[j].fillPixArr(pixels, Color.GREEN)
+        for (k in array.indices) {
+            for (j in array[k].points.indices)
+                array[k].points[j].fillPixArr(pixels, Color.GREEN)
         }
         this.bm.setPixels(pixels, 0, size.x, 0, 0,
             size.x, size.y)
@@ -90,14 +85,14 @@ class ObjSectors(bm: Bitmap, private val size: Point) {
         val prev = Vertex(line.end().x, line.end().y)
         for (i in 0 until size.x * size.y) {
             if ((pixels[i] == Color.BLACK) or (pixels[i] == Color.RED)
-                or (pixels[i] == 0xffff00ff.toInt()))
+                or (pixels[i] == 0xff50ffff.toInt()))
                 pixels[i] = 0x0
         }
         res = line.fillPixArr(pixels, color)
         if (abs(line.start.x - line.end().x) < 10 && abs(line.start.y - line.end().y) < 10) {
             for (i in 0 until size.x * size.y) {
                 if ((pixels[i] == Color.BLACK) or (pixels[i] == Color.RED) or
-                        (pixels[i] == 0xffff00ff.toInt()))
+                        (pixels[i] == 0xff50ffff.toInt()))
                     pixels[i] = 0x0
             }
             var redLine = ObjLine(size, Vertex(line.start.x, line.start.y), prev)
@@ -159,6 +154,11 @@ class Sector(size: Point, start: Vertex, end: Vertex) {
             return true
         if (checkIfSelfCross(last().end()))
             return true
+        //изменить дату
+        points += ObjLine(points[0].size,
+            Vertex(points[0].start.x, points[0].start.y),
+            Vertex(-1.0f, -1.0f))
+        points[0].isFinishedStart = true
         return false
     }
 
