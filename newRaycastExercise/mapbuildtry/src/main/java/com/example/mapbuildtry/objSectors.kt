@@ -3,24 +3,24 @@ package com.example.mapbuildtry
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Point
+import kotlin.math.abs
 
-class ObjSectors(bm: Bitmap, private var size: Point) {
+class ObjSectors(bm: Bitmap, private val size: Point) {
     var bm: Bitmap
 //    private var maze: Array<Maze> = arrayOf(Maze(-1,
 //        vertex(0.0f, 0.0f), vertex(0.0f, 0.0f)))
-    private var array: Array<Sector> = arrayOf(Sector(Vertex(0.0f, 0.0f)))
+    private var array: Array<Sector>
+    val pixels = IntArray(size.x * size.y)
 
     init {
+        var nullPoint1 = Vertex(0.0f, 0.0f)
+        var nullPoint2 = Vertex(0.0f, 0.0f)
+        this.array = arrayOf(Sector(size, nullPoint1, nullPoint2))
         this.array[0].isFinished = true
-        this.array[0].addPoint(Vertex(0.0f, 0.0f))
         this.bm = Bitmap.createScaledBitmap(bm, size.x, size.y, false)
-        val src = IntArray((size.x * size.y))
-        this.bm.setPixels(src, 0, size.x, 0, 0,
+        this.bm.setPixels(pixels, 0, size.x, 0, 0,
             size.x, size.y)
     }
-//    fun removeLine(point: vertex) {
-//
-//    }
 
     fun drawLine(point: Vertex, isUp: Boolean) {
         var i = 0
@@ -30,48 +30,85 @@ class ObjSectors(bm: Bitmap, private var size: Point) {
             i++
         }
         if (i == array.size) { //значит isFinished везде == true
-//            array += Sector(Vertex(0.0f, 0.0f))
-            array += Sector(point)
-//            array[i].addPoint(point)
-            bm.setPixel(array[i].pointFromEnd(0).x.toInt(), array[i].pointFromEnd(  0).y.toInt(), Color.YELLOW)
+            array += Sector(size, point, Vertex(-1.0f, -1.0f))
+            if (bm.getPixel(point.x.toInt(), point.y.toInt()) != Color.GREEN)
+                bm.setPixel(point.x.toInt(), point.y.toInt(), Color.YELLOW)
             return
         }
-        if (isUp && array[i].size > 1) {
-            (drawWall(
-                array[i].pointFromEnd(0),
-                array[i].pointFromEnd(1),
-                Color.GREEN
-            ))
-            array[i].addPoint(array[0].pointAt(1))
-            if (array[0].points[1] != array[0].points[0])
-                this.array[i].isFinished = true
+        if (isUp && i < array.size) {
+            if (array[i].last().noEnd()) {
+                for (i in 0 until size.x * size.y) {
+                    if ((pixels[i] == Color.BLACK) or (pixels[i] == Color.RED)
+                        or (pixels[i] == 0xffff00ff.toInt()))
+                        pixels[i] = 0x0
+                }
+                this.bm.setPixels(pixels, 0, size.x, 0, 0,
+                    size.x, size.y)
+                return
+            }
+            drawWall(array[i].points.last(), Color.GREEN)
+            if (array[i].isFinishedSegment()) {
+                array[i].isFinished = true
+                correctFigure(i)
+            }
+            else
+                array[i].points += ObjLine(size,
+                    array[i].last().end(), Vertex(-1.0f, -1.0f))
         }
-        if (!isUp) { //удаляю точку, если нажатиe не было окончено
-            if (array[i].size > 1)
-                array[i].delPoint(array[i].pointFromEnd(0))
-            array[0].points[0] = (drawWall(array[i].pointFromEnd(0), point, Color.RED))
-            array[0].points[1] = point
-            array[i].addPoint(Vertex(array[0].points[0].x, array[0].points[0].y))
-            this.array[i].isFinished = false
-//            if (array[i].pointFromEnd(0) != point)
-//                array[i].isFinished = true
+        if (!isUp) {
+            var prev = array[i].last().end()
+            array[i].changeLastPoint(point)
+//            if (array[i].points.size > 1 && !array[i].isDrawale())
+//                drawWall(array[i].points.last(), Color.YELLOW)
+//            else
+//                return array[i].changeLastPoint(Vertex(-1.0f, -1.0f))
+            if (!drawWall(array[i].points.last(), 0xffff00ff.toInt()))
+                array[i].changeLastPoint(Vertex(-1.0f, -1.0f))
         }
     }
 
-    private fun drawWall(one: Vertex, two: Vertex, color: Int): Vertex {
-        val pixels = IntArray(size.x * size.y)
-        val res: Vertex
-        val objLine = ObjDrawLine(size, one, two)
-        this.bm.getPixels(pixels, 0, size.x, 0, 0,
-            size.x, size.y)
-        for (i in 0 until size.x * size.y) {
-            if ((pixels[i] == Color.BLACK) or (pixels[i] == Color.RED))
-                pixels[i] = 0x0
+    private fun correctFigure(i: Int) {
+        var delete = true
+        var res: Array<ObjLine> = emptyArray()
+        for (j in array[i].points.indices) {
+            if (array[i].points[j].start == array[i].last().end())
+                delete = false
+            array[i].points[j].redrawLine(pixels)
+            if (!delete)
+                res += array[i].points[j]
         }
-        res = objLine.fillPixArr(pixels, color)
+        array[i].points = res
+        for (j in array[i].points.indices) {
+            array[i].points[j].fillPixArr(pixels, Color.GREEN)
+        }
         this.bm.setPixels(pixels, 0, size.x, 0, 0,
             size.x, size.y)
-        return res
+    }
+
+    private fun drawWall(line: ObjLine, color: Int): Boolean {
+        val res: Boolean
+        val prev = Vertex(line.end().x, line.end().y)
+        for (i in 0 until size.x * size.y) {
+            if ((pixels[i] == Color.BLACK) or (pixels[i] == Color.RED)
+                or (pixels[i] == 0xffff00ff.toInt()))
+                pixels[i] = 0x0
+        }
+        res = line.fillPixArr(pixels, color)
+        if (abs(line.start.x - line.end().x) < 10 && abs(line.start.y - line.end().y) < 10) {
+            for (i in 0 until size.x * size.y) {
+                if ((pixels[i] == Color.BLACK) or (pixels[i] == Color.RED) or
+                        (pixels[i] == 0xffff00ff.toInt()))
+                    pixels[i] = 0x0
+            }
+            var redLine = ObjLine(size, Vertex(line.start.x, line.start.y), prev)
+            redLine.fillPixArr(pixels, Color.RED)
+            this.bm.setPixels(pixels, 0, size.x, 0, 0,
+                size.x, size.y)
+            return false
+        }
+        this.bm.setPixels(pixels, 0, size.x, 0, 0,
+            size.x, size.y)
+        return true
     }
 
     fun finishSector(point: Vertex, res: Vertex) {
@@ -98,39 +135,50 @@ class ObjSectors(bm: Bitmap, private var size: Point) {
 //    private var sector: Int = i
 //}
 
-class Sector(vertex: Vertex) {
-    var points: Array<Vertex> = arrayOf(Vertex(vertex.x, vertex.y))
+class Sector(size: Point, start: Vertex, end: Vertex) {
+    var points: Array<ObjLine> = arrayOf(ObjLine(size, start, end))
     var isFinished: Boolean = false
     var size = points.size
 
-    fun addPoint(vertex: Vertex) {
-        this.points += vertex
-        this.size = points.size
+    fun last(): ObjLine {
+//        if (points.size > 0)
+        var size = points.size
+        return points[size - 1]
     }
 
-    fun pointFromEnd(i: Int): Vertex {
-        return points[this.size - i - 1]
+    fun changeLastPoint(point: Vertex) {
+        var size = points.size
+        points[size - 1].changeEnd(point)
     }
 
-    fun pointAt(i: Int): Vertex {
-        return points[i]
+    fun isFinishedSegment(): Boolean {
+        if (!last().isFinished)
+            return false
+        //а теперь пробегись по точкам и измени дату по часовой стрелке!
+        if (points[0].isFinishedStart == true)
+            return true
+        if (checkIfSelfCross(last().end()))
+            return true
+        return false
     }
 
-    fun delPoint(vertex: Vertex) {
-        var res: Array<Vertex> = emptyArray()
-        for (i in points.indices) {
-            if (this.points[i].equals(vertex)) {
-                this.isFinished = false
-//                res = this.points.drop(i).toTypedArray()
-                continue
+    fun checkIfSelfCross(check: Vertex): Boolean {
+        var res: Array<ObjLine> = emptyArray()
+        for (i in 0 until points.size - 1) {
+            if (points[i].checkIfCross(check)) {
+                res += ObjLine(points[i].size, points[i].start, check)
+                res += ObjLine(points[i].size, check, points[i].end())
+                for (j in i + 1 until points.size)
+                    res += points[j]
+                points = res
+                return true //стереть все
             }
-            else
-                res += this.points[i]
+            res += points[i]
+            //невходящие во множество точки
         }
-        this.points = res
-        this.size = points.size
+        return false //если нет, перевернуть все точки, сделать первую последней,
+        //а у последней поставить isStartFinished = true
     }
-
 //    private fun getFinalOrder (index: Int) {
 //        var howMuch = 1
 //        var i = index
@@ -162,6 +210,8 @@ class Sector(vertex: Vertex) {
 //        }
 //        this.points = newOrder
 //    }
+
+
 
 //    fun finish() {
 //        var keepSearching = false

@@ -50,6 +50,8 @@ class objPlay {
         if ((data.touch.secondTouch.isMoving) and
             (data.touch.firstTouch.pointer != data.touch.secondTouch.pointer))
             return
+        if (!data.touch.secondTouch.hold && !data.touch.firstTouch.hold)
+            return
         drawPoint(data, if (data.touch.secondTouch.hold)
             data.touch.secondTouch.pointer else data.touch.firstTouch.pointer, isUp)
     }
