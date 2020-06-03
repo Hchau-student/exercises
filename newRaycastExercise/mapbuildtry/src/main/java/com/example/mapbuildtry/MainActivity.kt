@@ -1,5 +1,6 @@
 package com.example.mapbuildtry
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import androidx.appcompat.app.AppCompatActivity
@@ -9,22 +10,22 @@ import android.view.View
 
 class MainActivity : AppCompatActivity() {
 
-    val size = Point()
+    private val size = Point()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        getWindowManager().getDefaultDisplay().getSize(size)
+        windowManager.defaultDisplay.getSize(size)
         setContentView(DrawView(this, size))
     }
 
     internal inner class DrawView(context: Context, size: Point): View(context) {
-        var size = size
-        var data: objData = objData(context, size)
+        private var data: ObjData = ObjData(context, size)
 
         override fun onDraw(canvas: Canvas) {
-            data.Draw(canvas/*, button, drawMap*/)
+            data.draw(canvas)
         }
+        @SuppressLint("ClickableViewAccessibility")
         override fun onTouchEvent(event: MotionEvent): Boolean {
-            ManageTouch(data, context, event)
+            manageTouch(data, /*context, */event)
             invalidate()
             return true
         }

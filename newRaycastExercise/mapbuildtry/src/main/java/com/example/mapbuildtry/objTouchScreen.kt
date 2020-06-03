@@ -4,115 +4,90 @@ import android.view.MotionEvent
 import kotlin.math.abs
 
 class TapScreen {
-    var FirstTouch: Touch =
+    var firstTouch: Touch =
         Touch(-1, false, FlVec2(0.0f, 0.0f))
-    var SecondTouch: Touch =
+    var secondTouch: Touch =
         Touch(-1, false, FlVec2(0.0f, 0.0f))
+    class FlVec2(var x: Float, var y: Float)
 
-    class FlVec2 {
-        var x: Float
-        var y: Float
+    class Touch(var pointer: Int, var hold: Boolean, var Begin: FlVec2) {
+        var end: FlVec2 = Begin
+        var isMoving = false
+        var isLeft = false
+        var isTop = false
 
-        constructor(x: Float, y: Float) {
-            this.x = x
-            this.y = y
-        }
-    }
-
-    class Touch {
-        var pointer: Int
-        var hold: Boolean
-        var Begin: FlVec2
-        var End: FlVec2
-        var isMoving: Boolean
-        var isLeft: Boolean
-        var isTop: Boolean
-
-        constructor(pointer: Int, hold: Boolean, Begin: FlVec2) {
-            this.pointer = pointer
-            this.isLeft = false
-            this.isTop = false
-            this.hold = hold
-            this.Begin = Begin
-            this.End = Begin
-            this.isMoving = false
-        }
     }
 
     fun tupDown(ev: MotionEvent, pointer: Int) {
-            if ((FirstTouch.pointer == -1)) {
-                FirstTouch = Touch(ev.getPointerId(pointer), true, FlVec2(ev.getX(pointer), ev.getY(pointer)))
-            } else if ((SecondTouch.pointer == -1) and (FirstTouch.pointer != ev.getPointerId(pointer))) {
-                SecondTouch = Touch(ev.getPointerId(pointer), true, FlVec2(ev.getX(pointer), ev.getY(pointer)))
-                if (FirstTouch.Begin.x < SecondTouch.Begin.x) {
-                    FirstTouch.isLeft = true; SecondTouch.isLeft = false
+            if ((firstTouch.pointer == -1)) {
+                firstTouch = Touch(ev.getPointerId(pointer), true, FlVec2(ev.getX(pointer), ev.getY(pointer)))
+            } else if ((secondTouch.pointer == -1) and (firstTouch.pointer != ev.getPointerId(pointer))) {
+                secondTouch = Touch(ev.getPointerId(pointer), true, FlVec2(ev.getX(pointer), ev.getY(pointer)))
+                if (firstTouch.Begin.x < secondTouch.Begin.x) {
+                    firstTouch.isLeft = true; secondTouch.isLeft = false
                 } else {
-                    FirstTouch.isLeft = false; SecondTouch.isLeft = true
+                    firstTouch.isLeft = false; secondTouch.isLeft = true
                 }
-                if (FirstTouch.Begin.y < SecondTouch.Begin.y) {
-                    FirstTouch.isTop = true; SecondTouch.isTop = false
+                if (firstTouch.Begin.y < secondTouch.Begin.y) {
+                    firstTouch.isTop = true; secondTouch.isTop = false
                 } else {
-                    FirstTouch.isTop = false; SecondTouch.isTop = true
+                    firstTouch.isTop = false; secondTouch.isTop = true
                 }
             }
     }
 
-    fun renew_touch(ev: MotionEvent, pointer: Int, touch: Touch): vertex {
-        var res = vertex(0.0f, 0.0f)
-        var ev_coord = vertex(ev.getX(ev.findPointerIndex(pointer)),
+    private fun renewTouch(ev: MotionEvent, pointer: Int, touch: Touch): Vertex {
+        val res = Vertex(0.0f, 0.0f)
+        val evTouch = Vertex(ev.getX(ev.findPointerIndex(pointer)),
         ev.getY(ev.findPointerIndex(pointer)))
-        if (touch.isMoving == false) {
-           if ((abs(touch.Begin.x - ev_coord.x) <= 30.0)
-                and (abs(touch.Begin.y - ev_coord.y) <= 30.0))
+        if (!touch.isMoving) {
+           if ((abs(touch.Begin.x - evTouch.x) <= 30.0)
+                and (abs(touch.Begin.y - evTouch.y) <= 30.0))
                 return (res)
         }
-        touch.End = FlVec2(ev_coord.x, ev_coord.y)
+        touch.end = FlVec2(evTouch.x, evTouch.y)
         touch.isMoving = true
-        res.x = (touch.Begin.x - touch.End.x)
-        res.y = (touch.Begin.y - touch.End.y)
-        touch.Begin = FlVec2(ev_coord.x, ev_coord.y)
+        res.x = (touch.Begin.x - touch.end.x)
+        res.y = (touch.Begin.y - touch.end.y)
+        touch.Begin = FlVec2(evTouch.x, evTouch.y)
         return res
     }
 
-    fun renew(ev: MotionEvent, pointer: Int): vertex {
-        if ((pointer == SecondTouch.pointer) and (SecondTouch.hold == true))
-            return renew_touch(ev, pointer, SecondTouch)
-        if ((pointer == FirstTouch.pointer) and (FirstTouch.hold == true))
-            return renew_touch(ev, pointer, FirstTouch)
-        return (vertex(0.0f, 0.0f))
+    fun renew(ev: MotionEvent, pointer: Int): Vertex {
+        if ((pointer == secondTouch.pointer) and (secondTouch.hold))
+            return renewTouch(ev, pointer, secondTouch)
+        if ((pointer == firstTouch.pointer) and (firstTouch.hold))
+            return renewTouch(ev, pointer, firstTouch)
+        return (Vertex(0.0f, 0.0f))
     }
 
     fun endTouch(pointerID: Int) {
-        if (pointerID == SecondTouch.pointer) {
-            SecondTouch = Touch(-1, false, FlVec2(0.0f, 0.0f))
+        if (pointerID == secondTouch.pointer) {
+            secondTouch = Touch(-1, false, FlVec2(0.0f, 0.0f))
         }
-        if (pointerID == FirstTouch.pointer) {
-            FirstTouch = Touch(-1, false, FlVec2(0.0f, 0.0f))
+        if (pointerID == firstTouch.pointer) {
+            firstTouch = Touch(-1, false, FlVec2(0.0f, 0.0f))
         }
     }
 
     //проверка
     fun isShortTouch(id: Int): Boolean {
-        if ((FirstTouch.isMoving == false) && (id == FirstTouch.pointer)
-            && FirstTouch.hold == true) {
+        if (!firstTouch.isMoving && (id == firstTouch.pointer) && firstTouch.hold) {
             return (true)
         }
-        if ((SecondTouch.isMoving == false) && (id == SecondTouch.pointer)
-            && SecondTouch.hold == true) {
+        if (!secondTouch.isMoving && (id == secondTouch.pointer) && secondTouch.hold) {
             return (true)
         }
         return (false)
     }
 
-    fun WhereIsShortTouch(id: Int): vertex {
-        if ((FirstTouch.isMoving == false) && (id == FirstTouch.pointer)
-            && FirstTouch.hold == true) {
-            return (vertex(FirstTouch.Begin.x, FirstTouch.Begin.y))
+    fun whereIsShortTouch(id: Int): Vertex {
+        if (!firstTouch.isMoving && (id == firstTouch.pointer) && firstTouch.hold) {
+            return (Vertex(firstTouch.Begin.x, firstTouch.Begin.y))
         }
-        if ((SecondTouch.isMoving == false) && (id == SecondTouch.pointer)
-            && SecondTouch.hold == true) {
-            return (vertex(SecondTouch.Begin.x, SecondTouch.Begin.y))
+        if (!secondTouch.isMoving && (id == secondTouch.pointer) && secondTouch.hold) {
+            return (Vertex(secondTouch.Begin.x, secondTouch.Begin.y))
         }
-        return (vertex(0.0f, 0.0f))
+        return (Vertex(0.0f, 0.0f))
     }
 }

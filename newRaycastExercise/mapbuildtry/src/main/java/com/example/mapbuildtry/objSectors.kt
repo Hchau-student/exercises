@@ -3,89 +3,79 @@ package com.example.mapbuildtry
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Point
-import java.lang.Float
 
-class objSectors {
+class ObjSectors(bm: Bitmap, private var size: Point) {
     var bm: Bitmap
-    var size: Point
-    var maze: Array<maze>
-    var array: Array<sector>
-    constructor(bm: Bitmap, size: Point) {
-        this.size = size
-        this.maze = arrayOf(maze(-1,
-            vertex(0.0f, 0.0f), vertex(0.0f, 0.0f)))
-        this.array = arrayOf(sector(vertex(0.0f, 0.0f)))
+//    private var maze: Array<Maze> = arrayOf(Maze(-1,
+//        vertex(0.0f, 0.0f), vertex(0.0f, 0.0f)))
+    private var array: Array<Sector> = arrayOf(Sector(Vertex(0.0f, 0.0f)))
+
+    init {
         this.array[0].isFinished = true
+        this.array[0].addPoint(Vertex(0.0f, 0.0f))
         this.bm = Bitmap.createScaledBitmap(bm, size.x, size.y, false)
-        var src = IntArray((size.x * size.y))
+        val src = IntArray((size.x * size.y))
         this.bm.setPixels(src, 0, size.x, 0, 0,
             size.x, size.y)
     }
-    fun RemoveLine(point: vertex) {
+//    fun removeLine(point: vertex) {
+//
+//    }
 
-    }
-
-    fun DrawLine(point: vertex, isUp: Boolean) {
-        // 1) дойти до первого сектора с isFinished == false
-        // 2) отрисовать линию, проверить, не замкнулся ли сектор
-        // 3) если сектор не замкнулся, добавить точку в дату,
-        // отрисовать линию
-        // 4) если сектор замкнулся (отрисованная линия пересекла стену),
-        // вызвать команду Finish
-        // 5) return
-
+    fun drawLine(point: Vertex, isUp: Boolean) {
         var i = 0
-        while (i < this.array.size) {
-            if (this.array[i].isFinished == false)
+        while (i < array.size) {
+            if (!array[i].isFinished)
                 break
             i++
         }
-        if (i >= this.array.size) { //значит isFinished везде == true
-            this.array += sector(point)
-            this.bm.setPixel(point.x.toInt(), point.y.toInt(), 0xffffff00.toInt())
+        if (i == array.size) { //значит isFinished везде == true
+//            array += Sector(Vertex(0.0f, 0.0f))
+            array += Sector(point)
+//            array[i].addPoint(point)
+            bm.setPixel(array[i].pointFromEnd(0).x.toInt(), array[i].pointFromEnd(  0).y.toInt(), Color.YELLOW)
             return
         }
-        if (this.array[i].points.size > 1 && isUp == true) {
-           this.array[i].delPoint(this.array[i].points[this.array[i].points.size - 1])
+        if (isUp && array[i].size > 1) {
+            (drawWall(
+                array[i].pointFromEnd(0),
+                array[i].pointFromEnd(1),
+                Color.GREEN
+            ))
+            array[i].addPoint(array[0].pointAt(1))
+            if (array[0].points[1] != array[0].points[0])
+                this.array[i].isFinished = true
         }
-        else if (this.array[i].points.size > 1) {
-            this.array[i].points += drawWall(
-                this.array[i].points[this.array[i].points.size - 2],
-                this.array[i].points[this.array[i].points.size - 1],
-                0xff00ff00.toInt()
-            )
-            if (!(this.array[i].points[this.array[i].points.size - 1].equals(point)))
-                array[i].isFinished = true
-            return
+        if (!isUp) { //удаляю точку, если нажатиe не было окончено
+            if (array[i].size > 1)
+                array[i].delPoint(array[i].pointFromEnd(0))
+            array[0].points[0] = (drawWall(array[i].pointFromEnd(0), point, Color.RED))
+            array[0].points[1] = point
+            array[i].addPoint(Vertex(array[0].points[0].x, array[0].points[0].y))
+            this.array[i].isFinished = false
+//            if (array[i].pointFromEnd(0) != point)
+//                array[i].isFinished = true
         }
-        this.array[i].points += drawWall(
-            this.array[i].points[this.array[i].points.size - 1],
-            point,
-            0xffff0000.toInt()
-        )
-        this.array[i].isFinished = false
-
-        // от последней точки сектора отрисовать линию до новой точки
-
-        // ??? есть ли ещё кейсы?
     }
 
-    fun drawWall(one: vertex, two: vertex, color: Int): vertex {
-        var pixels = IntArray(this.size.x * this.size.y)
-        var res: vertex
+    private fun drawWall(one: Vertex, two: Vertex, color: Int): Vertex {
+        val pixels = IntArray(size.x * size.y)
+        val res: Vertex
+        val objLine = ObjDrawLine(size, one, two)
         this.bm.getPixels(pixels, 0, size.x, 0, 0,
             size.x, size.y)
-        for (i in 0..((size.x - 1) * (size.y - 1))) {
+        for (i in 0 until size.x * size.y) {
             if ((pixels[i] == Color.BLACK) or (pixels[i] == Color.RED))
                 pixels[i] = 0x0
         }
-        res = fillPixArr(pixels, one, two, color)
+        res = objLine.fillPixArr(pixels, color)
         this.bm.setPixels(pixels, 0, size.x, 0, 0,
             size.x, size.y)
         return res
     }
 
-    fun Finish() {
+    fun finishSector(point: Vertex, res: Vertex) {
+//        if (res.x )
         // 1) посмотреть, как замкнулась фигура - не должно остаться
         // линий и точек, не принадлежащих ни одному другому сектору
         //
@@ -101,102 +91,34 @@ class objSectors {
         //
         //4) isFinished для выбранного сектора = true
     }
-    fun checkCol(src: IntArray, point: Point, size: Point, color: Int) {
-        if (src[point.x + point.y * size.x] != 0xff00ff00.toInt())
-            src[point.x + point.y * size.x] = color
-    }
-    fun FatLine(pixels: IntArray, point: Point, size: Point, color: Int) {
-        checkCol(pixels, point, size, color)
-        checkCol(pixels, Point(point.x + 1, point.y), size, color)
-        checkCol(pixels, Point(point.x, point.y + 1), size, color)
-        checkCol(pixels, Point(point.x + 1, point.y + 1), size, color)
-    }
-
-    fun NextCoord(error: Int, diff: Int, isX: Boolean, dir: Point, new: Point, delta: Int): Int {
-        var newErr = error + delta
-        if (newErr * 2 >= diff) {
-            if (isX == false) new.x += dir.x else new.y += dir.y
-            if (isX == false) new.y += dir.y else new.x += dir.x
-            return (newErr - diff)
-        }
-        if (isX == false) new.y += dir.y else new.x += dir.x
-        return newErr
-    }
-
-    fun IsThereWall(pixels: IntArray, point: Point, color: Int, begin: vertex, dir: Int, isX: Boolean): Boolean {
-        if (pixels[(point.x + point.y * this.size.x)] == Color.GREEN && color == Color.RED) {
-            if ((isX == true && (point.x > begin.x + 1 && dir > 0) or (point.x < begin.x - 1 && dir < 0)) or
-            (isX == false && (point.y > begin.y + 1 && dir > 0) or (point.y < begin.y - 1 && dir < 0)))
-                return true
-        }
-        return false
-    }
-
-    fun Bresenham(isX: Boolean, start: vertex, nextPix: Point, two: Point, pixels: IntArray,
-             color: Int, delta: Point) {
-        var error = 0
-        var dir = Point( (if(two.x > start.x) 1 else -1), if (two.y > start.y) 1 else -1)
-        var startCoord = if (isX == false) nextPix.y else nextPix.x
-        var end = if (isX == false) two.y else two.x
-        while (startCoord != end) {
-            if (isX == false) startCoord = nextPix.y else startCoord = nextPix.x
-            if (IsThereWall(pixels, nextPix, color, start, if (isX == false) dir.y else dir.x, isX)) break
-            FatLine(pixels, nextPix, this.size, color)
-            error = if (!isX) NextCoord(error, delta.y, isX, dir, nextPix, delta.x)
-            else NextCoord(error, delta.x, isX, dir, nextPix, delta.y)
-        }
-    }
-
-    fun fillPixArr(pixArray: IntArray, start: vertex, end: vertex, color: Int): vertex {
-        //drawing by Bresenham's line algorithm
-        var nextPix = Point(start.x.toInt(), start.y.toInt())
-        var two = Point(end.x.toInt(), end.y.toInt())
-        var delta = Point((if (two.x - nextPix.x < 0) nextPix.x - two.x else two.x - nextPix.x),
-            if (two.y - nextPix.y < 0) nextPix.y - two.y else two.y - nextPix.y)
-        if (delta.y < delta.x) {
-            Bresenham(true, start, nextPix, two, pixArray, color, delta)
-//            while (nextPix.x != two.x) {
-//                if (IsThereWall(pixels, nextPix, color, start, direction.x, true)) break
-//                FatLine(pixels, nextPix, this.size, color)
-//                error = NextCoord(error, delta.x, true, direction, nextPix, delta.y)
-//            }
-        } else {
-            Bresenham(false, start, nextPix, two, pixArray, color, delta)
-//            while (nextPix.y != two.y) {
-//                if (IsThereWall(pixels, nextPix, color, start, direction.y, false)) break
-//                FatLine(pixels, nextPix, size, color)
-//                error = NextCoord(error, delta.y, false, direction, nextPix, delta.x)
-//            }
-        }
-        return vertex(nextPix.x.toFloat(), nextPix.y.toFloat())
-    }
 }
 
-class maze {
-    var borders: borders
-    var sector: Int
-    constructor(i: Int, vertex1: vertex, vertex2: vertex)
-    {
-        sector = i
-        borders = borders(vertex1, vertex2)
-    }
-}
+//class Maze(i: Int, Vertex1: vertex, vertex2: vertex) {
+//    private var borders: Borders = Borders(vertex1, vertex2)
+//    private var sector: Int = i
+//}
 
-class sector {
-    var points: Array<vertex>
-    var isFinished: Boolean
-    constructor(vertex: vertex) {
-        this.isFinished = false
-        this.points = arrayOf(vertex(vertex.x, vertex.y))
-    }
+class Sector(vertex: Vertex) {
+    var points: Array<Vertex> = arrayOf(Vertex(vertex.x, vertex.y))
+    var isFinished: Boolean = false
+    var size = points.size
 
-    fun addPoint(vertex: vertex) {
+    fun addPoint(vertex: Vertex) {
         this.points += vertex
+        this.size = points.size
     }
 
-    fun delPoint(vertex: vertex) {
-        var res: Array<vertex> = emptyArray()
-        for (i in 0..this.points.size - 1) {
+    fun pointFromEnd(i: Int): Vertex {
+        return points[this.size - i - 1]
+    }
+
+    fun pointAt(i: Int): Vertex {
+        return points[i]
+    }
+
+    fun delPoint(vertex: Vertex) {
+        var res: Array<Vertex> = emptyArray()
+        for (i in points.indices) {
             if (this.points[i].equals(vertex)) {
                 this.isFinished = false
 //                res = this.points.drop(i).toTypedArray()
@@ -206,67 +128,62 @@ class sector {
                 res += this.points[i]
         }
         this.points = res
+        this.size = points.size
     }
 
-    fun GetFinalOrder (index: Int) {
-        var howMuch = 1
-        var i = index
-        var direction = 0
-        var newOrder = arrayOf(this.points[index])
-        //1) найти направление по часовой
-        if (index > 0) {
-            if (this.points[index].x > this.points[index - 1].x)
-                direction = 1
-            else if ((this.points[index].x == this.points[index - 1].x)
-                and (this.points[index].y < this.points[index - 1].y))
-                direction = 1
-            else
-                direction = -1
-        } else {
-            if (this.points[index + 1].x > this.points[index].x)
-                direction = 1
-            else if ((this.points[index + 1].x == this.points[index].x)
-                and (this.points[index + 1].y < this.points[index].y))
-                direction = 1
-            else
-                direction = -1
-        }
-        while (howMuch != this.points.size) {
-            if (i + direction < 0) {
-                i = this.points.size - 1
-            } else if (index + direction >= this.points.size) {
-                i = 0
-            } else {
-                i = i + direction
-            }
-            newOrder += this.points[i]
-            howMuch++
-        }
-        this.points = newOrder
-    }
+//    private fun getFinalOrder (index: Int) {
+//        var howMuch = 1
+//        var i = index
+//        var newOrder = arrayOf(this.points[index])
+//        //1) найти направление по часовой
+//        val direction = if (index > 0) {
+//            when {
+//                this.points[index].x > this.points[index - 1].x -> 1
+//                (this.points[index].x == this.points[index - 1].x)
+//                        and (this.points[index].y < this.points[index - 1].y) -> 1
+//                else -> -1
+//            }
+//        } else {
+//            when {
+//                this.points[index + 1].x > this.points[index].x -> 1
+//                (this.points[index + 1].x == this.points[index].x)
+//                        and (this.points[index + 1].y < this.points[index].y) -> 1
+//                else -> -1
+//            }
+//        }
+//        while (howMuch != this.points.size) {
+//            i = when {
+//                i + direction < 0 -> this.points.size - 1
+//                index + direction >= this.points.size -> 0
+//                else -> i + direction
+//            }
+//            newOrder += this.points[i]
+//            howMuch++
+//        }
+//        this.points = newOrder
+//    }
 
-    fun Finish() {
-        //1) find the toppest spot
-        var keepSearching = false // if
-        var index = 0
-        this.isFinished = true
-        var theTopest: vertex =  vertex(0.0f, Float.POSITIVE_INFINITY)
-        for (i in 0..this.points.size - 1)
-        {
-            if (this.points[i].y < theTopest.y) {
-                theTopest = this.points[i]
-                index = i
-                keepSearching = false
-            }
-            else if (this.points[i].y == theTopest.y)
-                keepSearching = true
-        }
-        if (keepSearching == false)
-            return GetFinalOrder(index)
-        for (i in 0..this.points.size - 1) {
-            if ((this.points[i].y == theTopest.y) && this.points[i].x < theTopest.x)
-                theTopest = this.points[i]; index = i
-        }
-        GetFinalOrder(index)
-    }
+//    fun finish() {
+//        var keepSearching = false
+//        var index = 0
+//        this.isFinished = true
+//        var theTop =  vertex(0.0f, Float.POSITIVE_INFINITY)
+//        for (i: Int in points.indices)
+//        {
+//            if (points[i].y < theTop.y) {
+//                theTop = points[i]
+//                index = i
+//                keepSearching = false
+//            }
+//            else if (points[i].y == theTop.y)
+//                keepSearching = true
+//        }
+//        if (!keepSearching)
+//            return getFinalOrder(index)
+//        for (i in points.indices) {
+//            if ((points[i].y == theTop.y) && points[i].x < theTop.x)
+//                theTop = this.points[i]; index = i
+//        }
+//        getFinalOrder(index)
+//    }
 }

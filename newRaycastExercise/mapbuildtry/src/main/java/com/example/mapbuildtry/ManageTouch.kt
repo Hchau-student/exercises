@@ -1,33 +1,17 @@
 package com.example.mapbuildtry
 
-import android.content.Context
 import android.view.MotionEvent
 
-//
-    //проверено, работает
-    fun getMode(data: objData, context: Context) {
-        if (data.buttons.drag.on == true) {
-//            data.buttons.drag.bitmap = BitmapFactory.decodeResource(context?.getResources(), R.drawable.dancing)
-//            data.buttons.draw.bitmap = BitmapFactory.decodeResource(context?.getResources(), R.drawable.dancing)
-            ;//выполнить команду
-        }
-        if (data.buttons.draw.on == true) {
-//            data.buttons.draw.bitmap = BitmapFactory.decodeResource(context?.getResources(), R.drawable.grad)
-//            data.buttons.drag.bitmap = BitmapFactory.decodeResource(context?.getResources(), R.drawable.grad)
-        }
-    }
-
-fun longTouch(data: objData, ev: MotionEvent, shiftB: borders, isUp: Boolean) {
-    var play = objPlay()
-    if (data.buttons.drag.on == true) {
-        play.DragMap(data, shiftB)
+fun longTouch(data: ObjData, /* ev: MotionEvent,*/ shiftB: Borders, isUp: Boolean) {
+    val play = objPlay()
+    if (data.buttons.drag.on) {
+        play.dragMap(data, shiftB)
     } else {
-        play.DrawLine(data, shiftB, isUp)
-        ;//play.DrawLine(data, shiftB)
+        play.drawLine(data, /*shiftB,*/ isUp)
     }
 }
 
-fun shortTouch(data: objData, vertex: vertex) {
+fun shortTouch(/*data: ObjData, vertex: vertex*/) {
 //    if (data.buttons.drag.on == true) {
 //        ;//выполнить команду
 //    }
@@ -35,25 +19,24 @@ fun shortTouch(data: objData, vertex: vertex) {
 //    }
 }
 
-fun ManageTouch(data: objData, context: Context, ev: MotionEvent) {
-    var TouchVertex: borders
-    var shortTouch: Int = IsShortTouch(ev, data.touch)
+fun manageTouch(data: ObjData, /*context: Context,*/ ev: MotionEvent) {
+    val touches: Borders
+    val shortTouch: Int = isShortTouch(ev, data.touch)
     if (shortTouch != -1) {
-        //проверить нажатия на кнопки
-        var where = data.touch.WhereIsShortTouch(shortTouch)
-        if ((data.buttons.ableButton(where)) == true) {
-            getMode(data, context)
-        }
-        else {//кнопки не нажаты; что делаем, капитан?
-            shortTouch(data, where)
+        val where = data.touch.whereIsShortTouch(shortTouch)
+        if (!data.buttons.ableButton(where)) {
+            //кнопки не нажаты; что делаем, капитан?
+            touches = longTapEventVertex(ev, data.touch)
+            longTouch(data, /*ev,*/ touches, true)
+            shortTouch(/*data, where*/)
         }
     }
     else {
-//        DrawPoint(ev, data)
-        TouchVertex = LongTapEventVertex(ev, data.touch)
-        longTouch(data, ev, TouchVertex, true)
-        if (EndTapEvent(ev, data.touch) != -1.0f)
-            longTouch(data, ev, TouchVertex, false)
+        touches = longTapEventVertex(ev, data.touch)
+        longTouch(data, /*ev,*/ touches, false)
+//        if (endTapEvent(ev, data.touch) != -1.0f)
+        if (longTapEnded(ev, data.touch))
+            longTouch(data, /*ev,*/ touches, true)
     }
-    EndTapEvent(ev, data.touch)
+    endTapEvent(ev, data.touch)
 }
