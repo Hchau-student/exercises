@@ -8,6 +8,7 @@ class ObjLine (var size: Point, var start: Vertex, private var end: Vertex) {
     private var nextPix: Point = Point(this.start.x.toInt(), this.start.y.toInt())
     private var two: Point = Point(this.end.x.toInt(), this.end.y.toInt())
     var isFinished = false
+    var samePoint = false
     var isFinishedStart = false
     private var delta: Point = Point(
         (if (two.x - nextPix.x < 0) nextPix.x - two.x else two.x - nextPix.x),
@@ -66,9 +67,12 @@ class ObjLine (var size: Point, var start: Vertex, private var end: Vertex) {
             return false
         if (color == 0xff50ffff.toInt()) {
             for (i in -2..2) {
-                if (pixels[(nextPix.x + i + nextPix.y * size.x)] == Color.GREEN ||
-                    pixels[nextPix.x + (nextPix.y + i) * size.x] == Color.GREEN ||
-                    pixels[(nextPix.x + i) + (nextPix.y + i) * size.x] == Color.GREEN)
+                if ((pixels[(nextPix.x + i + nextPix.y * size.x)] != 0x0
+                    && pixels[(nextPix.x + i + nextPix.y * size.x)] != color) ||
+                    (pixels[nextPix.x + (nextPix.y + i) * size.x] != 0x0
+                    && pixels[nextPix.x + (nextPix.y + i) * size.x] != color) ||
+                    (pixels[(nextPix.x + i) + (nextPix.y + i) * size.x] != 0x0 &&
+                     pixels[(nextPix.x + i) + (nextPix.y + i) * size.x] != color))
                     return true
             }
         }
