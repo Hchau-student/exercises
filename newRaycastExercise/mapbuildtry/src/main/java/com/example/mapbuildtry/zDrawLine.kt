@@ -42,7 +42,7 @@ class ObjLine (var size: Point, var start: Vertex, private var end: Vertex) {
 
     fun end(): Vertex = end
 
-    fun noEnd(): Boolean = end.x == -1.0f
+    fun noEnd(): Boolean = end.x < -0.1f
 
     fun changeEnd(newEnd: Vertex) { end = newEnd }
 
@@ -57,32 +57,32 @@ class ObjLine (var size: Point, var start: Vertex, private var end: Vertex) {
         return newErr
     }
 
-    private fun isThereWall(pixels: IntArray, color: Int, dir: Int): Boolean {
+    private fun isThereWall(pixels: IntArray, color: Int/*, dir: Int*/): Boolean {
         if ((nextPix.x > size.x - 1) || (nextPix.y > size.y - 1)) return true
         if ((nextPix.x < 0) || (nextPix.y < 0)) return true
-        if (isX && abs(nextPix.x - start.x) <= 5)
+        if (isX && abs(nextPix.x - start.x) <= 6)
             return false
-        if (!isX && abs(nextPix.y - start.y) <= 5)
+        if (!isX && abs(nextPix.y - start.y) <= 6)
             return false
         if (color == 0xff50ffff.toInt()) {
-            if (pixels[(nextPix.x + nextPix.y * size.x)] == Color.GREEN ||
-                pixels[nextPix.x + 1 + nextPix.y * size.x] == Color.GREEN ||
-                pixels[nextPix.x - 1 + nextPix.y * size.x] == Color.GREEN ||
-                pixels[nextPix.x + (nextPix.y + 1) * size.x] == Color.GREEN ||
-                pixels[nextPix.x + (nextPix.y - 1) * size.x] == Color.GREEN)
-                return true
+            for (i in -2..2) {
+                if (pixels[(nextPix.x + i + nextPix.y * size.x)] == Color.GREEN ||
+                    pixels[nextPix.x + (nextPix.y + i) * size.x] == Color.GREEN ||
+                    pixels[(nextPix.x + i) + (nextPix.y + i) * size.x] == Color.GREEN)
+                    return true
+            }
         }
         return false
     }
 
-    private fun bresenham(pixels: IntArray, color: Int): Boolean {
+    private fun putLine(pixels: IntArray, color: Int): Boolean {
         var error = 0
         val dir = Point((if (two.x > this.start.x) 1 else -1), if (two.y > this.start.y) 1 else -1)
         var startInt: Int = if (!isX) this.nextPix.y else this.nextPix.x
         val endInt: Int = if (!isX) two.y else two.x
         while (startInt != endInt) {
             startInt = if (!isX) this.nextPix.y else this.nextPix.x
-            if (color != Color.RED && isThereWall(pixels, color, if (!isX) dir.y else dir.x)) return true
+            if (color != Color.RED && isThereWall(pixels, color/*, if (!isX) dir.y else dir.x*/)) return true
             fatLine(pixels, color)
             error = if (!isX) nextPoint(error, delta.y, dir, delta.x)
             else nextPoint(error, delta.x, dir, delta.y)
@@ -91,7 +91,7 @@ class ObjLine (var size: Point, var start: Vertex, private var end: Vertex) {
     }
 
     fun fillPixArr(pixArray: IntArray, color: Int): Boolean {
-        //drawing by Bresenham's line algorithm
+//        drawing by Bresenham's line algorithm
         nextPix = Point(this.start.x.toInt(), this.start.y.toInt())
         two = Point(end.x.toInt(), end.y.toInt())
         delta = Point(
@@ -103,18 +103,16 @@ class ObjLine (var size: Point, var start: Vertex, private var end: Vertex) {
             //чекнуть, не начинается ли линия на зелёной точке
             isFinishedStart = true
         if (color == Color.RED || color == 0xff50ffff.toInt())
-            isFinished = bresenham(pixArray, color) //если мы упираемся в зелёную точку, вернётся true -
+            isFinished = putLine(pixArray, color) //если мы упираемся в зелёную точку, вернётся true -
         // значит, линия упирается в другой блок
         else
-            bresenham(pixArray, color)
+            putLine(pixArray, color)
         if (color != Color.GREEN)
             end = Vertex(nextPix.x.toFloat(), nextPix.y.toFloat())
         return false
     }
 
-    fun redrawLine(pixArray: IntArray) {
-        fillPixArr(pixArray, 0x0)
-    }
+    fun redrawLine(pixArray: IntArray) { fillPixArr(pixArray, 0x0) }
 
     fun checkIfCross(check: Vertex): Boolean {
         nextPix = Point(this.start.x.toInt(), this.start.y.toInt())

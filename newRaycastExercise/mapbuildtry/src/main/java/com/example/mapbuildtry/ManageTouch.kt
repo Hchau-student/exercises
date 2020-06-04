@@ -3,7 +3,7 @@ package com.example.mapbuildtry
 import android.view.MotionEvent
 
 fun longTouch(data: ObjData, /* ev: MotionEvent,*/ shiftB: Borders, isUp: Boolean) {
-    val play = objPlay()
+    val play = ObjPlay()
     if (data.buttons.drag.on) {
         play.dragMap(data, shiftB)
     } else {
@@ -27,16 +27,15 @@ fun manageTouch(data: ObjData, /*context: Context,*/ ev: MotionEvent) {
         if (!data.buttons.ableButton(where)) {
             //кнопки не нажаты; что делаем, капитан?
             touches = longTapEventVertex(ev, data.touch)
-            longTouch(data, /*ev,*/ touches, true)
+            longTouch(data, touches, true)
             shortTouch(/*data, where*/)
         }
     }
     else {
         touches = longTapEventVertex(ev, data.touch)
-        longTouch(data, /*ev,*/ touches, false)
-//        if (endTapEvent(ev, data.touch) != -1.0f)
+        longTouch(data, touches, false)
         if (longTapEnded(ev, data.touch))
-            longTouch(data, /*ev,*/ touches, true)
+            longTouch(data, touches, true)
     }
     endTapEvent(ev, data.touch)
 }

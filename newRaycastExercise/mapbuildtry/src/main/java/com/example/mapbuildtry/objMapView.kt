@@ -8,7 +8,7 @@ class ObjMapView(size: Point, context: Context) {
         BitmapFactory.decodeResource(context.resources, R.drawable.anonim)
     private var bm: Bitmap =
         Bitmap.createScaledBitmap(this.background, size.x, size.y, false)
-    private val sectors = ObjSectors(this.bm, size)
+    private val sectors = ObjSectors(this.bm, size, context)
     var rect: Rect = Rect(-size.x * 2, -size.y * 2,
         size.x + size.x * 2, size.y + size.y * 2)
 

@@ -3,7 +3,7 @@ package com.example.mapbuildtry
 import android.graphics.Point
 import android.graphics.Rect
 
-class objPlay {
+class ObjPlay {
 
     private fun changeShift(shift: Float, centre: Float, size: Int): Float {
         return shift * (centre * 10 / size)
@@ -36,7 +36,7 @@ class objPlay {
                 data.mapView.rect.right - rightBottom.x.toInt(),
                 data.mapView.rect.bottom - rightBottom.y.toInt())
         } else {
-            val shift = if (shiftB.begin.equals(Vertex(0.0f, 0.0f)))
+            val shift = if (shiftB.begin == Vertex(0.0f, 0.0f))
                 shiftB.end else shiftB.begin
             data.mapView.rect = Rect(
                 data.mapView.rect.left - shift.x.toInt(),
@@ -57,21 +57,20 @@ class objPlay {
     }
 
     private fun drawPoint(data: ObjData, pointer: Int, isUp: Boolean) {
-        if (!data.buttons.draw.on) return
+        if (!data.buttons.draw.on) { return }
         val vertex = if (pointer == data.touch.firstTouch.pointer) {
-           Vertex (data.touch.firstTouch.Begin.x, data.touch.firstTouch.Begin.y)
-        } else Vertex (data.touch.secondTouch.Begin.x, data.touch.secondTouch.Begin.y)
+           Vertex(data.touch.firstTouch.Begin.x, data.touch.firstTouch.Begin.y)
+        } else Vertex(data.touch.secondTouch.Begin.x, data.touch.secondTouch.Begin.y)
 
-        if (data.buttons.ableButton(Vertex(vertex.x, vertex.y)))
-            return
+        if (data.buttons.ableButton(Vertex(vertex.x, vertex.y))) { return }
         val x = data.size.x.toFloat() / (data.mapView.rect.right - data.mapView.rect.left)
         val y = data.size.y.toFloat() / (data.mapView.rect.bottom - data.mapView.rect.top)
         val where = Vertex(vertex.x, vertex.y)
         where.x = x * (-data.mapView.rect.left + vertex.x)
         where.y = y * (-data.mapView.rect.top + vertex.y)
-        if (where.x < 0) where.x = 0.0f; if (where.y < 0) where.y = 0.0f
-        if (where.x >= data.size.x) where.x = data.size.x.toFloat() - 1
-        if (where.y >= data.size.y) where.y = data.size.y.toFloat() - 1
+        if (where.x - 10 < 0) where.x = 10.0f; if (where.y - 10 < 0) where.y = 10.0f
+        if (where.x + 10 >= data.size.x) where.x = data.size.x.toFloat() - 10
+        if (where.y + 10 >= data.size.y) where.y = data.size.y.toFloat() - 10
         data.mapView.addPoint(where, isUp)
     }
 }
